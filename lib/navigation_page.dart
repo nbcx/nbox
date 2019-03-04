@@ -126,7 +126,7 @@ class _NavigationPageState extends State<NavigationPage> with TickerProviderStat
 	TabController _tabController;
 	
 	List<Widget> _tabView = <Widget>[
-		BaiduMeituDemo(), Collection(), SettingPage(),GridListPage(),Collection()
+		BaiduMeituDemo(), Collection(), AboutPage(),GridListPage(),Collection()
 	];
 	
 	List<Color> colors = [

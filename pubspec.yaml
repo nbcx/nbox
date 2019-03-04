@@ -52,16 +52,5 @@ flutter:
   uses-material-design: true
 
   assets:
-    - packages/flutter_gallery_assets/places/india_chennai_flower_market.png
-    - packages/flutter_gallery_assets/places/india_thanjavur_market.png
-    - packages/flutter_gallery_assets/places/india_tanjore_bronze_works.png
-    - packages/flutter_gallery_assets/places/india_tanjore_market_merchant.png
-    - packages/flutter_gallery_assets/places/india_tanjore_thanjavur_temple.png
-    - packages/flutter_gallery_assets/places/india_pondicherry_salt_farm.png
-    - packages/flutter_gallery_assets/places/india_chennai_highway.png
-    - packages/flutter_gallery_assets/places/india_chettinad_silk_maker.png
-    - packages/flutter_gallery_assets/places/india_tanjore_thanjavur_temple_carvings.png
-    - packages/flutter_gallery_assets/places/india_chettinad_produce.png
-    - packages/flutter_gallery_assets/places/india_tanjore_market_technology.png
-    - packages/flutter_gallery_assets/places/india_pondicherry_beach.png
-    - packages/flutter_gallery_assets/places/india_pondicherry_fisherman.png
+    - assets/images/ali_connors.png
+    - assets/images/ali_connors_sml.png

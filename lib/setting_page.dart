@@ -1,203 +1,201 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:picbox/colors.dart';
 import 'package:picbox/setting_app_page.dart';
 
-/// 设置页面
-class SettingPage extends StatefulWidget {
-  @override
-  _SettingPageState createState() => _SettingPageState();
-}
-
-class _SettingPageState extends State<SettingPage> with AutomaticKeepAliveClientMixin {
-
-  Widget _line() {
-      return Container(
-          width: double.infinity,
-          height: 0.5,
-          padding: EdgeInsets.only(left: 5.0, right: 5.0),
-          child: Container(
-            color: Colors.black12,
-          )
-      );
-  }
-
+class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('我'),
+    /**/
+    //final MainBloc bloc = BlocProvider.of<MainBloc>(context);
+    ComModel github = new ComModel(
+        title: 'GitHub',
+        url: 'https://github.com/Sky24n/flutter_wanandroid',
+        extra: 'Go Star'
+    );
+    ComModel author = new ComModel(title: '作者', page: SettingAppPage());
+    ComModel other = new ComModel(title: '设置', page: SettingAppPage());
+
+    return new Scaffold(
+      appBar: new AppBar(
+          title: new Text('设置'),
+          centerTitle: true,
       ),
-      body: EasyRefresh(
-        behavior: ScrollOverBehavior(),
-        child: ListView(
-          children: <Widget>[
-            ListItem(
-              title: '个人中心',
-              describe: '先想想想想想想想想想想想想想想想想',
-              icon: Icon(
-                Icons.person,
-                color: Colors.orange,
+      body: new ListView(
+        children: <Widget>[
+          new Container(
+              height: 160.0,
+              alignment: Alignment.center,
+              child: new Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  new Card(
+                    color: Theme.of(context).primaryColor,
+                    elevation: 0.0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(6.0))),
+                    child: new Image.asset(
+                      'assets/images/ali_connors.png',
+                      width: 72.0,
+                      fit: BoxFit.fill,
+                      height: 72.0,
+                    ),
+                  ),
+                  new SizedBox(height: 5),
+                  new Text(
+                    '图片盒子',
+                    style: new TextStyle(color: Colours.gray_99, fontSize: 14.0),
+                  )
+                ],
               ),
-              onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-                    //return UserProfilePage();
-                  }));
-              },
-            ),
-            _line(),
-            ListItem(
-              title: '个人中心2',
-              describe: 'ddd',
-              icon: Icon(
-                  Icons.supervised_user_circle,
-                  color: Colors.orange,
-              ),
-              onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-                      //return ContactsDemo();
-                  }));
-              },
-            ),
-            _line(),
-            ListItem(
-              title: '设置',
-              describe: "APP个性设置",
-              icon: Icon(
-                Icons.http,
-                color: Colors.orange,
-              ),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (BuildContext context) {
-                      return SettingAppPage();
-                    })
+              decoration: new BoxDecoration(
+                  color: Colors.white,
+                  border: new Border.all(width: 0.33, color: Colours.divider)
+              )
+          ),
+          new ComArrowItem(other),
+          new ComArrowItem(github),
+          new ComArrowItem(author),
+          new StreamBuilder(
+              //stream: bloc.versionStream,
+              builder:(BuildContext context, AsyncSnapshot snapshot) {
+                //VersionModel model = snapshot.data;
+                return new Container(
+                  child: new Material(
+                    color: Colors.white,
+                    child: new ListTile(
+                      onTap: () {
+
+                      },
+                      title: new Text('版本更新'),
+                      //dense: true,
+                      trailing: new Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          new Text('已是最新版',
+                            style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14.0
+                            ),
+                          ),
+                          new Icon(
+                            Icons.navigate_next,
+                            color: Colors.grey,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  //decoration: Decorations.bottom,
                 );
-              },
-            ),
-            _line(),
-            ListItem(
-              title: '关于',
-              icon: Icon(
-                Icons.info,
-                color: Colors.orange,
-              ),
-              onPressed: () {
-                //launch("https://nb.cx");
-              },
-            ),
-          ],
-        ),
+              }),
+          //new ComArrowItem(other),
+        ],
       ),
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }
 
 
-/// 列表项
-class ListItem extends StatefulWidget {
-  // 点击事件
-  final VoidCallback onPressed;
-  // 图标
-  final Widget icon;
-  // 标题
-  final String title;
-  final Color titleColor;
-  // 描述
-  final String describe;
-  final Color describeColor;
-  // 右侧控件
-  final Widget rightWidget;
-  
-  // 构造函数
-  ListItem({
-    Key key,
-    this.onPressed,
-    this.icon,
-    this.title,
-    this.titleColor: Colors.black,
-    this.describe,
-    this.describeColor: Colors.grey,
-    this.rightWidget,
-  }) : super(key: key);
-  
-  @override
-  _ListItemState createState() => _ListItemState();
-}
+class ComArrowItem extends StatelessWidget {
 
-class _ListItemState extends State<ListItem> {
+  const ComArrowItem(this.model, {Key key}) : super(key: key);
+  final ComModel model;
+
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
-      onPressed: widget.onPressed,
-      padding: EdgeInsets.all(0.0),
-      shape: Border.all(
-        color: Colors.transparent,
-        width: 0.0,
-        style: BorderStyle.none,
-      ),
-      child: Container(
-          height: 60.0,
-          width: double.infinity,
-          child: Row(
+    return new Container(
+      child: new Material(
+        color: Colors.white,
+        child: new ListTile(
+          onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => model.page));
+          },
+          title: new Text(model.title == null ? "" : model.title),
+          trailing: new Row(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              widget.icon != null
-                  ? Container(
-                padding: EdgeInsets.all(14.0),
-                child: SizedBox(
-                  height: 32.0,
-                  width: 32.0,
-                  child: widget.icon,
-                ),
-              )
-                  : Container(
-                width: 14.0,
+              new Text(
+                model.extra == null ? "" : model.extra,
+                style: TextStyle(color: Colors.grey, fontSize: 14.0),
               ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    widget.title != null
-                        ? Text(
-                      widget.title,
-                      style: TextStyle(
-                        color: widget.titleColor,
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                        : Container(),
-                    widget.describe != null
-                        ? Text(
-                      widget.describe,
-                      maxLines: 2,
-                      style: TextStyle(
-                          color: widget.describeColor, fontSize: 12.0),
-                    )
-                        : Container(),
-                  ],
-                ),
-              ),
-              widget.rightWidget == null ? Container() : widget.rightWidget,
-              Container(
-                width: 14.0,
+              new Icon(
+                Icons.navigate_next,
+                color: Colors.grey,
               ),
             ],
-          )),
+          ),
+        ),
+      ),
+      decoration: Decorations.bottom,
     );
   }
 }
 
-/// 空图标
-class EmptyIcon extends Icon {
-  EmptyIcon() : super(Icons.hourglass_empty);
+class Decorations {
+  static Decoration bottom = BoxDecoration(
+      border: Border(bottom: BorderSide(width: 0.33, color: Colours.divider)));
+}
+
+class ComModel {
+  String version;
+  String title;
+  String content;
+  String extra;
+  String url;
+  String imgUrl;
+  String author;
+  String updatedAt;
+
+  int typeId;
+  String titleId;
+
+  Widget page;
+
+  ComModel(
+      {this.version,
+        this.title,
+        this.content,
+        this.extra,
+        this.url,
+        this.imgUrl,
+        this.author,
+        this.updatedAt,
+        this.typeId,
+        this.titleId,
+        this.page});
+
+  ComModel.fromJson(Map<String, dynamic> json)
+      : version = json['version'],
+        title = json['title'],
+        content = json['content'],
+        extra = json['extra'],
+        url = json['url'],
+        imgUrl = json['imgUrl'],
+        author = json['author'],
+        updatedAt = json['updatedAt'];
+
+  Map<String, dynamic> toJson() => {
+    'version': version,
+    'title': title,
+    'content': content,
+    'extra': extra,
+    'url': url,
+    'imgUrl': imgUrl,
+    'author': author,
+    'updatedAt': updatedAt,
+  };
+
   @override
-  Widget build(BuildContext context) {
-    return Container();
+  String toString() {
+    StringBuffer sb = new StringBuffer('{');
+    sb.write("\"version\":\"$version\"");
+    sb.write(",\"title\":\"$title\"");
+    sb.write(",\"content\":\"$content\"");
+    sb.write(",\"url\":\"$url\"");
+    sb.write(",\"imgUrl\":\"$imgUrl\"");
+    sb.write(",\"author\":\"$author\"");
+    sb.write(",\"updatedAt\":\"$updatedAt\"");
+    sb.write('}');
+    return sb.toString();
   }
 }
