@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'navigation_page.dart';
 import 'event_bus.dart';
+import 'colors.dart';
+import 'session.dart';
 
 void main() async {
   setCustomErrorPage();
@@ -25,9 +27,17 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
       super.initState();
-      bus.on("tabchange", (arg) {
+      
+      Session.getInstance();
+      
+      String _colorKey = Session.getString('key_theme_color');
+      if (themeColorMap[_colorKey] != null)
+          _themeColor = themeColorMap[_colorKey];
+      
+      bus.on("themechange", (arg) {
+          print(arg);
           setState(() {
-              _themeColor = arg;
+              _themeColor = themeColorMap[arg];
           });
       });
   }
@@ -38,8 +48,10 @@ class _MyAppState extends State<MyApp> {
     
     return MaterialApp(
         title: '图片盒子',
-        theme: ThemeData(
-            primarySwatch: _themeColor,
+        theme: ThemeData.light().copyWith(
+            primaryColor: _themeColor,
+            accentColor: _themeColor,
+            indicatorColor: Colors.white,
         ),
         home: NavigationPage(),
     );
@@ -49,9 +61,9 @@ class _MyAppState extends State<MyApp> {
 
 void setCustomErrorPage(){
   ErrorWidget.builder = (FlutterErrorDetails flutterErrorDetails){
-    //print(flutterErrorDetails.toString());
-    return Center(
-      child: Text("Flutter 走神了"),
-    );
+        //print(flutterErrorDetails.toString());
+        return Center(
+            child: Text("Flutter 走神了"),
+        );
   };
 }

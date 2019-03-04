@@ -9,7 +9,6 @@ import 'collection.dart';
 import 'event_bus.dart';
 import 'login_page.dart';
 import 'grid_list_page.dart';
-import 'setting_page.dart';
 
 class NavigationIconView {
 	
@@ -126,7 +125,7 @@ class _NavigationPageState extends State<NavigationPage> with TickerProviderStat
 	TabController _tabController;
 	
 	List<Widget> _tabView = <Widget>[
-		BaiduMeituDemo(), Collection(), SettingPage(),GridListPage(),Collection()
+		BaiduMeituDemo(), Collection(), BaiduMeituDemo(),const GridListPage(),Collection()
 	];
 	
 	List<Color> colors = [
@@ -181,6 +180,8 @@ class _NavigationPageState extends State<NavigationPage> with TickerProviderStat
 		//new
 		_tabController = new TabController(initialIndex: 0, length: 5, vsync: this);
 		_tabController.addListener(() {
+			print('hello${_tabController.index}');
+			bus.emit("tabchange", colors[_tabController.index]);
 			setState((){});
 		});
 	}
@@ -194,31 +195,21 @@ class _NavigationPageState extends State<NavigationPage> with TickerProviderStat
 	
 	@override
 	Widget build(BuildContext context) {
+		final BottomNavigationBar botNavBar = BottomNavigationBar(
+			items: _navigationViews
+				.map<BottomNavigationBarItem>((NavigationIconView navigationView) => navigationView.item)
+				.toList(),
+			currentIndex: _tabController.index,
+			type: _type,
+			//iconSize: 4.0,
+			onTap: _onBottomNavigationBarTap,
+		);
 		return Scaffold(
 			body: TabBarView(
 				controller: _tabController,
 				children: _tabView,
 			),
-			bottomNavigationBar: BottomNavigationBar(
-				currentIndex: _tabController.index,
-				type: BottomNavigationBarType.fixed,
-				fixedColor: Colors.black,
-				onTap: _onBottomNavigationBarTap,
-				items: <BottomNavigationBarItem>[
-					BottomNavigationBarItem(
-						icon: Icon(Icons.dashboard),
-						title: Text('发现')
-					),
-					BottomNavigationBarItem(
-						icon: Icon(Icons.style),
-						title: Text('分类')
-					),
-					BottomNavigationBarItem(
-						icon: Icon(Icons.person),
-						title: Text('我')
-					)
-				],
-			),
+			bottomNavigationBar: botNavBar,
 		);
 	}
 	
@@ -229,8 +220,14 @@ class _NavigationPageState extends State<NavigationPage> with TickerProviderStat
 			Navigator.of(context).push(MaterialPageRoute(builder: (context) => new LoginPage()));
 			return null;
 		}
+		bus.emit("tabchange", colors[index]);
+		print(index);
 		setState(() {
 			_tabController.index = index;
+			
+			_navigationViews[_currentIndex].controller.reverse();
+			_currentIndex = index;
+			_navigationViews[_currentIndex].controller.forward();
 		});
 	}
 	
