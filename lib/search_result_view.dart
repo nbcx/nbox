@@ -6,6 +6,13 @@ import 'collection.dart';
 
 /// 基本使用页面
 class SearchResultView extends StatefulWidget {
+
+    final String search;
+
+    const SearchResultView({
+        Key key,
+        this.search: '明星'
+    });
     
     @override
     _SearchResultViewState createState() => _SearchResultViewState();
@@ -20,6 +27,15 @@ class _SearchResultViewState extends State<SearchResultView> with AutomaticKeepA
 
     int indexPage = 1;
     List<String> data = [];
+    String search;
+
+    @override
+    void initState() {
+        super.initState();
+        //初始化状态
+        search = widget.search;
+        print("search $search");
+    }
 
     @override
     bool get wantKeepAlive => true;
@@ -99,7 +115,8 @@ class _SearchResultViewState extends State<SearchResultView> with AutomaticKeepA
         }
         Dio dio = new Dio();
         Response response;
-        response = await dio.get('http://image.baidu.com/channel/listjson?pn=$indexPage&rn=30&tag1=%E6%98%8E%E6%98%9F&tag2=%E5%85%A8%E9%83%A8&ie=utf8');
+
+        response = await dio.get('http://image.baidu.com/channel/listjson?pn=$indexPage&rn=30&tag1=$search&tag2=%E5%85%A8%E9%83%A8&ie=utf8');
         print(response.data.toString());
         Map map = json.decode(response.data);
         List array = map["data"];
@@ -125,7 +142,7 @@ class _SearchResultViewState extends State<SearchResultView> with AutomaticKeepA
         data.clear();
         Dio dio = new Dio();
         Response response;
-        response = await dio.get('http://image.baidu.com/channel/listjson?pn=$indexPage&rn=30&tag1=%E6%98%8E%E6%98%9F&tag2=%E5%85%A8%E9%83%A8&ie=utf8');
+        response = await dio.get('http://image.baidu.com/channel/listjson?pn=$indexPage&rn=30&tag1=$search&tag2=%E5%85%A8%E9%83%A8&ie=utf8');
         print(response.data.toString());
         Map map = json.decode(response.data);
         var array = map["data"];

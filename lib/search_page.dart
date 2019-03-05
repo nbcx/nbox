@@ -105,15 +105,14 @@ class _SearchDemoSearchDelegate extends SearchDelegate<int> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final int searched = int.tryParse(query);
-    if (searched == null || !_data.contains(searched)) {
+    if (query == null) {
         return Center(
             child: Text('"$query"\n is not a valid integer between 0 and 100,000.\nTry again.',
               textAlign: TextAlign.center,
             ),
         );
     }
-    return SearchResultView();
+    return SearchResultView(search: query);
     
   }
 
