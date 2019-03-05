@@ -11,7 +11,7 @@ class BaiduMeituDemo extends StatefulWidget {
     _BaiduMeituDemoState createState() => _BaiduMeituDemoState();
 }
 
-class _BaiduMeituDemoState extends State<BaiduMeituDemo> with TickerProviderStateMixin {
+class _BaiduMeituDemoState extends State<BaiduMeituDemo> with AutomaticKeepAliveClientMixin {
     
     //List<String> addStr = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
     //List<String> str = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
@@ -23,6 +23,9 @@ class _BaiduMeituDemoState extends State<BaiduMeituDemo> with TickerProviderStat
 
     int indexPage = 1;
     List<String> data = [];
+
+    @override
+    bool get wantKeepAlive => true;
     
     @override
     Widget build(BuildContext context) {

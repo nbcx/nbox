@@ -22,18 +22,21 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   
-  Color _themeColor = Colors.deepPurple;
+  Color _themeColor = Colors.black;
   
   @override
   void initState() {
       super.initState();
-      
-      Session.getInstance();
-      
+      _initAsync();
+  }
+
+  void _initAsync() async {
+      await Session.getInstance();
+    
       String _colorKey = Session.getString('key_theme_color');
       if (themeColorMap[_colorKey] != null)
           _themeColor = themeColorMap[_colorKey];
-      
+    
       bus.on("themechange", (arg) {
           print(arg);
           setState(() {

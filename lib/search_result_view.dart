@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert' show json;
-import 'meizi_list_item.dart';
+import 'collection.dart';
 
 /// 基本使用页面
-class Collection extends StatefulWidget {
+class SearchResultView extends StatefulWidget {
     
     @override
-    _CollectionState createState() => _CollectionState();
+    _SearchResultViewState createState() => _SearchResultViewState();
 }
 
-class _CollectionState extends State<Collection> with AutomaticKeepAliveClientMixin { //with TickerProviderStateMixin
+class _SearchResultViewState extends State<SearchResultView> with AutomaticKeepAliveClientMixin {
     
     GlobalKey<EasyRefreshState> _easyRefreshKey = new GlobalKey<EasyRefreshState>();
     GlobalKey<RefreshHeaderState> _headerKey = new GlobalKey<RefreshHeaderState>();
@@ -21,14 +21,12 @@ class _CollectionState extends State<Collection> with AutomaticKeepAliveClientMi
     int indexPage = 1;
     List<String> data = [];
 
-
     @override
     bool get wantKeepAlive => true;
     
     @override
     Widget build(BuildContext context) {
       return Scaffold(
-        appBar: AppBar(title: Text('我的收藏')),
         body: Center(
             child: new EasyRefresh(
                 key: _easyRefreshKey,
@@ -59,18 +57,38 @@ class _CollectionState extends State<Collection> with AutomaticKeepAliveClientMi
                     moreInfoColor: Colors.black54,
                     showMore: true,
                 ),
-                child: new ListView.builder(
-                    //ListView的Item
+                child:new GridView.builder(
+                    gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                     itemCount: data.length,
-                    itemBuilder: (BuildContext context, int index) {
-                        return new Container(
-                            child: MeiZiListItem(data[index], currentIndex: index)
-                        );
-                    }
+                    itemBuilder: buildImage,
                 ),
               onRefresh: ()=>_onRefresh(),
               loadMore: ()=>_more(),
             )),
+            /**
+            persistentFooterButtons: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                      _easyRefreshKey.currentState.callRefresh();
+                  },
+                  child: Text("刷新",style: TextStyle(color: Colors.black))
+                ),
+                FlatButton(
+                      onPressed: () {
+                        _easyRefreshKey.currentState.callLoadMore();
+                      },
+                      child: Text("加载",style: TextStyle(color: Colors.black))
+                ),
+                FlatButton(
+                    onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+                            return Collection();
+                        }));
+                    },
+                    child: Text("收藏",style: TextStyle(color: Colors.black))
+                )
+            ],// This trailing comma makes auto-formatting nicer for build methods.
+            */
       );
     }
 
@@ -107,7 +125,7 @@ class _CollectionState extends State<Collection> with AutomaticKeepAliveClientMi
         data.clear();
         Dio dio = new Dio();
         Response response;
-        response = await dio.get('http://image.baidu.com/channel/listjson?pn=$indexPage&rn=30&tag1=美女&tag2=%E5%85%A8%E9%83%A8&ie=utf8');
+        response = await dio.get('http://image.baidu.com/channel/listjson?pn=$indexPage&rn=30&tag1=%E6%98%8E%E6%98%9F&tag2=%E5%85%A8%E9%83%A8&ie=utf8');
         print(response.data.toString());
         Map map = json.decode(response.data);
         var array = map["data"];
