@@ -20,19 +20,6 @@ class _SearchPageState extends State<SearchPage> {
         return Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
-                /*
-                leading: IconButton(
-                    tooltip: 'Navigation menu',
-                    icon: AnimatedIcon(
-                        icon: AnimatedIcons.menu_arrow,
-                        color: Colors.white,
-                        progress: _delegate.transitionAnimation,
-                    ),
-                    onPressed: () {
-                        //_scaffoldKey.currentState.openDrawer();
-                    },
-                ),
-                */
                 title: const Text('图片盒子'),
                 actions: <Widget>[
                     IconButton(
@@ -50,16 +37,24 @@ class _SearchPageState extends State<SearchPage> {
                         }
                       },
                     ),
-                    //MaterialDemoDocumentationButton(SearchDemo.routeName),
-                    IconButton(
-                      tooltip: 'More (not implemented)',
-                      icon: Icon(
-                        Theme.of(context).platform == TargetPlatform.iOS
-                            ? Icons.more_horiz
-                            : Icons.more_vert,
-                      ),
-                      onPressed: () {},
+                    new PopupMenuButton(
+                        icon:const Icon(Icons.add),
+                        onSelected: (String value){
+                            print("onSelected $value");
+                        },
+                        itemBuilder: (BuildContext context) =><PopupMenuItem<String>>[
+                            new PopupMenuItem(
+                                value:"选项一的内容",
+                                child: new Text("选项一")
+                            ),
+                            new PopupMenuItem(
+                                value: "选项二的内容",
+                                child: new Text("选项二")
+                            )
+                        ]
                     ),
+                    //MaterialDemoDocumentationButton(SearchDemo.routeName),
+                    
                 ],
             ),
             body: SearchResultView(),

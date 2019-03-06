@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'home.dart';
 import 'collection.dart';
 import 'login_page.dart';
-import 'grid_list_page.dart';
+import 'cloud_page.dart';
 import 'setting_page.dart';
 import 'search_page.dart';
-
 
 
 class NavigationPage extends StatefulWidget {
@@ -17,14 +16,11 @@ class NavigationPage extends StatefulWidget {
 
 class _NavigationPageState extends State<NavigationPage> with SingleTickerProviderStateMixin {
 	
-	//int _currentIndex = 0;
-	//BottomNavigationBarType _type = BottomNavigationBarType.shifting;
-	//List<NavigationIconView> _navigationViews;
 	// 页面控制
 	TabController _tabController;
 	
 	List<Widget> _tabView = <Widget>[
-		SearchPage(), Collection(), AboutPage(),GridListPage(),Collection()
+		SearchPage(), Collection(), CloudPage(), AboutPage(),Collection()
 	];
 	
 	List<Color> colors = [
@@ -36,25 +32,14 @@ class _NavigationPageState extends State<NavigationPage> with SingleTickerProvid
 	];
 	
 	@override
-	bool get wantKeepAlive => true;
-	
-	@override
 	void initState() {
 		super.initState();
-		
 		//new
 		_tabController = new TabController(initialIndex: 0, length: 5, vsync: this);
 		_tabController.addListener(() {
 			setState((){});
 		});
 	}
-	
-	//@override
-	//void dispose() {
-	//	for (NavigationIconView view in _navigationViews)
-	//		view.controller.dispose();
-	//	super.dispose();
-	//}
 	
 	@override
 	Widget build(BuildContext context) {
@@ -71,11 +56,15 @@ class _NavigationPageState extends State<NavigationPage> with SingleTickerProvid
 				items: <BottomNavigationBarItem>[
 					BottomNavigationBarItem(
 						icon: Icon(Icons.dashboard),
-						title: Text('发现')
+						title: Text('推荐')
 					),
 					BottomNavigationBarItem(
 						icon: Icon(Icons.style),
-						title: Text('分类')
+						title: Text('探索')
+					),
+					BottomNavigationBarItem(
+						icon: Icon(Icons.cloud),
+						title: Text('云端')
 					),
 					BottomNavigationBarItem(
 						icon: Icon(Icons.person),

@@ -32,8 +32,10 @@ dependencies:
     shared_preferences: ^0.4.3
     # https://github.com/tekartik/synchronized.dart
     synchronized: ^1.5.3
-
+    crypto: ^2.0.6
+    image_picker: ^0.5.0+3
     flutter_gallery_assets: 0.1.8
+    xml2json: ^3.0.3
 
 dev_dependencies:
     flutter_test:

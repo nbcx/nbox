@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert' show json;
-import 'collection.dart';
 
 /// 基本使用页面
 class SearchResultView extends StatefulWidget {
@@ -81,30 +80,6 @@ class _SearchResultViewState extends State<SearchResultView> with AutomaticKeepA
               onRefresh: ()=>_onRefresh(),
               loadMore: ()=>_more(),
             )),
-            /**
-            persistentFooterButtons: <Widget>[
-                FlatButton(
-                  onPressed: () {
-                      _easyRefreshKey.currentState.callRefresh();
-                  },
-                  child: Text("刷新",style: TextStyle(color: Colors.black))
-                ),
-                FlatButton(
-                      onPressed: () {
-                        _easyRefreshKey.currentState.callLoadMore();
-                      },
-                      child: Text("加载",style: TextStyle(color: Colors.black))
-                ),
-                FlatButton(
-                    onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
-                            return Collection();
-                        }));
-                    },
-                    child: Text("收藏",style: TextStyle(color: Colors.black))
-                )
-            ],// This trailing comma makes auto-formatting nicer for build methods.
-            */
       );
     }
 
@@ -151,8 +126,6 @@ class _SearchResultViewState extends State<SearchResultView> with AutomaticKeepA
         }
         indexPage++;
         setState(() {
-            //str.clear();
-            //str.addAll(addStr);
             _easyRefreshKey.currentState.waitState(() {
                 setState(() {
                     _loadMore = true;
