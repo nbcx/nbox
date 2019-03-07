@@ -64,6 +64,7 @@ class _CollectionState extends State<Collection> with AutomaticKeepAliveClientMi
                     itemCount: data.length,
                     itemBuilder: (BuildContext context, int index) {
                         return new Container(
+                            height: 360,
                             child: MeiZiListItem(data[index], currentIndex: index)
                         );
                     }
