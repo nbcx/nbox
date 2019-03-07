@@ -46,30 +46,31 @@ class AboutPage extends StatelessWidget {
           StreamBuilder(
             //stream: bloc.versionStream,
               builder:(BuildContext context, AsyncSnapshot snapshot) {
-                //VersionModel model = snapshot.data;
-                return new Container(
-                  child: new Material(
-                    color: Colors.white,
-                    child: new ListTile(
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingAppPage()));
-                      },
-                      title: new Text('设置'),
-                      //dense: true,
-                      trailing: new Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          new Icon(
-                            Icons.navigate_next,
-                            color: Colors.grey,
-                          ),
-                        ],
+                  //VersionModel model = snapshot.data;
+                  return new Container(
+                    child: new Material(
+                      color: Colors.white,
+                      child: new ListTile(
+                        onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingAppPage()));
+                        },
+                        title: new Text('设置'),
+                        //dense: true,
+                        trailing: new Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            new Icon(
+                              Icons.navigate_next,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  //decoration: Decorations.bottom,
-                );
-              }),
+                    //decoration: Decorations.bottom,
+                  );
+              }
+          ),
           StreamBuilder(
             //stream: bloc.versionStream,
               builder:(BuildContext context, AsyncSnapshot snapshot) {

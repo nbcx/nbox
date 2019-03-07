@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'search_result_view.dart';
+import 'home_view.dart';
 
 class SearchPage extends StatefulWidget {
 
@@ -57,7 +58,7 @@ class _SearchPageState extends State<SearchPage> {
                     
                 ],
             ),
-            body: SearchResultView(),
+            body: HomeView(),//SearchResultView(),
         );
     }
 }

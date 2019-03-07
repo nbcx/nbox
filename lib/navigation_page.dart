@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'home.dart';
+import 'home_view.dart';
 import 'collection.dart';
 import 'login_page.dart';
 import 'cloud_page.dart';
 import 'setting_page.dart';
-import 'search_page.dart';
+import 'home_page.dart';
 
 
 class NavigationPage extends StatefulWidget {
@@ -23,13 +23,6 @@ class _NavigationPageState extends State<NavigationPage> with SingleTickerProvid
 		SearchPage(), Collection(), CloudPage(), AboutPage(),Collection()
 	];
 	
-	List<Color> colors = [
-		Colors.deepPurple,
-		Colors.deepOrange,
-		Colors.teal,
-		Colors.indigo,
-		Colors.pink
-	];
 	
 	@override
 	void initState() {
@@ -45,6 +38,7 @@ class _NavigationPageState extends State<NavigationPage> with SingleTickerProvid
 	Widget build(BuildContext context) {
 		return Scaffold(
 			body: TabBarView(
+				physics: new NeverScrollableScrollPhysics(),
 				controller: _tabController,
 				children: _tabView,
 			),
@@ -56,11 +50,11 @@ class _NavigationPageState extends State<NavigationPage> with SingleTickerProvid
 				items: <BottomNavigationBarItem>[
 					BottomNavigationBarItem(
 						icon: Icon(Icons.dashboard),
-						title: Text('推荐')
+						title: Text('动态')
 					),
 					BottomNavigationBarItem(
 						icon: Icon(Icons.style),
-						title: Text('探索')
+						title: Text('当前库')
 					),
 					BottomNavigationBarItem(
 						icon: Icon(Icons.cloud),
