@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'search_result_view.dart';
-import 'home_view.dart';
+import 'file_view.dart';
 
 class FileManagePage extends StatefulWidget {
 
@@ -59,7 +59,7 @@ class _FileManagePageState extends State<FileManagePage> {
                     
                 ],
             ),
-            body: HomeView(),//SearchResultView(),
+            body: FileView(),//SearchResultView(),
         );
     }
 }

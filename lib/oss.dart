@@ -8,31 +8,13 @@ import 'session.dart';
 
 class Oss {
 	
-	//验证文本域
-	static String policyText = '{"expiration": "2020-01-01T12:00:00.000Z","conditions": [["content-length-range", 0, 1048576000]]}';
-
-	//进行utf8编码
-	static List<int> policyText_utf8 = utf8.encode(policyText);
-
-	//进行base64编码
-	static String policy_base64 = base64.encode(policyText_utf8);
-
-	//再次进行utf8编码
-	static List<int> policy = utf8.encode(policy_base64);
+	
 	
 	
 	static String accessid  = Session.getString('_key');
 	static String accesskey = Session.getString('_secret');
 	static String domain = Session.getString('_domain');
 	
-	//进行utf8 编码
-	static List<int> key = utf8.encode(accesskey);
-
-	//通过hmac,使用sha1进行加密
-	static List<int> signature_pre  = new Hmac(sha1, key).convert(policy).bytes;
-
-	//最后一步，将上述所得进行base64 编码
-	String signature = base64.encode(signature_pre);
 	
 	test() {
 		var goodXmlString = '''<?xml version="1.0"?>
@@ -54,6 +36,22 @@ class Oss {
 	}
 	
 	upload() async {
+		//验证文本域
+		String policyText = '{"expiration": "2020-01-01T12:00:00.000Z","conditions": [["content-length-range", 0, 1048576000]]}';
+		//进行utf8编码
+		List<int> policyText_utf8 = utf8.encode(policyText);
+		//进行base64编码
+		String policy_base64 = base64.encode(policyText_utf8);
+		//再次进行utf8编码
+		List<int> policy = utf8.encode(policy_base64);
+		//进行utf8 编码
+		List<int> key = utf8.encode(accesskey);
+		//通过hmac,使用sha1进行加密
+		List<int> signature_pre  = new Hmac(sha1, key).convert(policy).bytes;
+		
+		//最后一步，将上述所得进行base64 编码
+		String signature = base64.encode(signature_pre);
+		
 		
 		//要上传的文件，此处为从相册选择照片
 		File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -122,11 +120,33 @@ class Oss {
 		}
 	}
 	
-	_signUrl() {
+	String _signUrl() {
+		
+		//进行utf8 编码
+		List<int> key = utf8.encode(accesskey);
+		
+		print("accesskey $accesskey");
+		
 		String bucketname="picbox";
-		int expire=new DateTime.now().millisecondsSinceEpoch + 3600;
-		String StringToSign="GET\n\n\n$expire\n/$bucketname/";//.$file;
+		double ee = new DateTime.now().millisecondsSinceEpoch/1000 + 3600;
+		int expire = 1552042855+7600;//int.parse(ee.toString());
+		print("expire $expire");
+		
+		String StringToSign="GET\n\n\n$expire\n$bucketname";//.$file;
 		String sign = base64.encode(new Hmac(sha1,key).convert(utf8.encode(StringToSign)).bytes);
+		
+		//进行utf8编码
+		List<int> policyText_utf8 = utf8.encode(StringToSign);//policyText
+		//进行base64编码
+		String policy_base64 = base64.encode(policyText_utf8);
+		//再次进行utf8编码
+		List<int> policy = utf8.encode(policy_base64);
+		
+		//通过hmac,使用sha1进行加密
+		List<int> signature_pre  = new Hmac(sha1, key).convert(policy).bytes;
+		//最后一步，将上述所得进行base64 编码
+		String signature = base64.encode(signature_pre);
+		
 		
 		String url="https://$domain?OSSAccessKeyId=$accessid&Expires=$expire&Signature=$sign";
 		print(url);

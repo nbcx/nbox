@@ -36,6 +36,7 @@ dependencies:
     image_picker: ^0.5.0+3
     flutter_gallery_assets: 0.1.8
     xml2json: ^3.0.3
+    path_provider: ^0.4.1
 
 dev_dependencies:
     flutter_test:
@@ -56,3 +57,16 @@ flutter:
   assets:
     - assets/images/ali_connors.png
     - assets/images/ali_connors_sml.png
+    - assets/images/folder.png
+    - assets/images/image.png
+    - assets/images/ppt.png
+    - assets/images/word.png
+    - assets/images/excel.png
+    - assets/images/txt.png
+    - assets/images/file.png
+    - assets/images/zip.png
+    - assets/images/mp3.png
+    - assets/images/video.png
+    - assets/images/psd.png
+    - assets/images/unknown.png
+    - assets/images/image.jpg
