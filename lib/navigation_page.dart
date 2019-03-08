@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'home_view.dart';
-import 'collection.dart';
+import 'home_page.dart';
 import 'login_page.dart';
 import 'cloud_page.dart';
 import 'setting_page.dart';
-import 'home_page.dart';
+import 'file_manage_page.dart';
 
 
 class NavigationPage extends StatefulWidget {
@@ -20,7 +19,7 @@ class _NavigationPageState extends State<NavigationPage> with SingleTickerProvid
 	TabController _tabController;
 	
 	List<Widget> _tabView = <Widget>[
-		SearchPage(), Collection(), CloudPage(), AboutPage(),Collection()
+		 HomePage(), FileManagePage(), CloudPage(), AboutPage()
 	];
 	
 	
