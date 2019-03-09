@@ -7,34 +7,12 @@ import 'util.dart';
 import 'session.dart';
 
 class Oss {
-	
-	
-	
-	
+
 	static String accessid  = Session.getString('_key');
 	static String accesskey = Session.getString('_secret');
 	static String domain = Session.getString('_domain');
 	
-	
-	test() {
-		var goodXmlString = '''<?xml version="1.0"?>
-			<bookshelf>
-			  <book>
-				<title lang="english">Growing a Language</title>
-				<price>29.99</price>
-			  </book>
-			  <book>
-				<title lang="english">Learning XML</title>
-				<price>39.95</price>
-			  </book>
-			  <price>132.00</price>
-			</bookshelf>''';
-		Map map = xml2map(goodXmlString);
-		print(map['version']);
-		List array = map["bookshelf"]['book'];
-		print(array[0]['title']);
-	}
-	
+
 	upload() async {
 		//验证文本域
 		String policyText = '{"expiration": "2020-01-01T12:00:00.000Z","conditions": [["content-length-range", 0, 1048576000]]}';
@@ -121,33 +99,20 @@ class Oss {
 	}
 	
 	String _signUrl() {
-		
 		//进行utf8 编码
 		List<int> key = utf8.encode(accesskey);
-		
 		print("accesskey $accesskey");
-		
+
 		String bucketname="picbox";
-		double ee = new DateTime.now().millisecondsSinceEpoch/1000 + 3600;
-		int expire = 1552042855+7600;//int.parse(ee.toString());
-		print("expire $expire");
-		
-		String StringToSign="GET\n\n\n$expire\n$bucketname";//.$file;
-		String sign = base64.encode(new Hmac(sha1,key).convert(utf8.encode(StringToSign)).bytes);
-		
+
+		int expire = (new DateTime.now().millisecondsSinceEpoch/1000 + 3600).ceil();
+
+		String StringToSign="GET\n\n\n$expire\n/$bucketname/";//.$file;
 		//进行utf8编码
 		List<int> policyText_utf8 = utf8.encode(StringToSign);//policyText
-		//进行base64编码
-		String policy_base64 = base64.encode(policyText_utf8);
-		//再次进行utf8编码
-		List<int> policy = utf8.encode(policy_base64);
-		
-		//通过hmac,使用sha1进行加密
-		List<int> signature_pre  = new Hmac(sha1, key).convert(policy).bytes;
-		//最后一步，将上述所得进行base64 编码
-		String signature = base64.encode(signature_pre);
-		
-		
+		List<int> signature_pre  = new Hmac(sha1, key).convert(policyText_utf8).bytes;//policy
+		String sign = base64.encode(signature_pre);
+		print("sign $sign");
 		String url="https://$domain?OSSAccessKeyId=$accessid&Expires=$expire&Signature=$sign";
 		print(url);
 		return url;

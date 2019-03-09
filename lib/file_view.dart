@@ -37,6 +37,7 @@ class _FileViewState extends State<FileView> {
                 }
             },
             child: Scaffold(
+                /*
                 appBar: AppBar(
                     title: Text(
                         '当前库',
@@ -60,6 +61,7 @@ class _FileViewState extends State<FileView> {
                             }
                         }),
                 ),
+                */
                 backgroundColor: Color(0xfff3f3f3),
                 body: Scrollbar(
                     child: ListView.builder(
