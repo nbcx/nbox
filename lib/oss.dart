@@ -106,7 +106,7 @@ class Oss {
 		String bucketname="picbox";
 
 		int expire = (new DateTime.now().millisecondsSinceEpoch/1000 + 3600).ceil();
-
+		print("expire $expire");
 		String StringToSign="GET\n\n\n$expire\n/$bucketname/";//.$file;
 		//进行utf8编码
 		List<int> policyText_utf8 = utf8.encode(StringToSign);//policyText

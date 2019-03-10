@@ -3,15 +3,13 @@ import 'navigation_page.dart';
 import 'event_bus.dart';
 import 'colors.dart';
 import 'session.dart';
+import 'sqlite.dart';
 
 void main() async {
   setCustomErrorPage();
-  //final provider = new Provider();
-  //await provider.init(true);
-  
+  await db.init();
+  await Session.getInstance();
   return runApp(MyApp());
-  
-  //return runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -31,8 +29,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _initAsync() async {
-      await Session.getInstance();
-    
       String _colorKey = Session.getString('key_theme_color');
       if (themeColorMap[_colorKey] != null)
           _themeColor = themeColorMap[_colorKey];

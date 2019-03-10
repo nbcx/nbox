@@ -61,7 +61,7 @@ class _NavigationPageState extends State<NavigationPage> with SingleTickerProvid
 					),
 					BottomNavigationBarItem(
 						icon: Icon(Icons.person),
-						title: Text('我')
+						title: Text('设置')
 					)
 				],
 			),

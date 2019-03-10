@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'cloud_setting_page.dart';
+import 'sqlite.dart';
 
 const String _kGalleryAssetsPackage = 'flutter_gallery_assets';
 
@@ -8,6 +9,66 @@ enum CardDemoType {
     standard,
     selectable,
 }
+
+class CloudPage extends StatefulWidget {
+
+    @override
+    _CloudPageState createState() => _CloudPageState();
+}
+
+class _CloudPageState extends State<CloudPage> {
+    ShapeBorder _shape;
+
+    @override
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+                title: const Text('云端'),
+                actions: <Widget>[
+                    //MaterialDemoDocumentationButton(CardsDemo.routeName),
+                    IconButton(
+                        icon: const Icon(
+                            Icons.sentiment_very_satisfied,
+                            semanticLabel: 'update shape',
+                        ),
+                        onPressed: () {
+                            setState(() {
+                                _shape = _shape != null ? null : const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(16.0),
+                                        topRight: Radius.circular(16.0),
+                                        bottomLeft: Radius.circular(2.0),
+                                        bottomRight: Radius.circular(2.0),
+                                    ),
+                                );
+                            });
+                        },
+                    ),
+                ],
+            ),
+            body: ListView(
+                padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+                children: destinations.map<Widget>((TravelDestination destination) {
+                    Widget child;
+                    switch (destination.type) {
+                        case CardDemoType.standard:
+                            child = TravelDestinationItem(destination: destination, shape: _shape);
+                            break;
+                        case CardDemoType.selectable:
+                            child = SelectableTravelDestinationItem(destination: destination, shape: _shape);
+                            break;
+                    }
+
+                    return Container(
+                        margin: const EdgeInsets.only(bottom: 8.0),
+                        child: child,
+                    );
+                }).toList(),
+            ),
+        );
+    }
+}
+
 
 class TravelDestination {
     
@@ -246,7 +307,10 @@ class TravelDestinationContent extends StatelessWidget {
                             FlatButton(
                                 child: Text('SHARE', semanticsLabel: 'Share ${destination.title}'),
                                 textColor: Colors.amber.shade500,
-                                onPressed: () { print('pressed'); },
+                                onPressed: () {
+                                    print('pressed');
+                                    _test();
+                                },
                             ),
                             FlatButton(
                                 child: Text('EXPLORE', semanticsLabel: 'Explore ${destination.title}'),
@@ -264,63 +328,11 @@ class TravelDestinationContent extends StatelessWidget {
             children: children,
         );
     }
-}
 
-class CloudPage extends StatefulWidget {
-    
-    @override
-    _CloudPageState createState() => _CloudPageState();
-}
-
-class _CloudPageState extends State<CloudPage> {
-    ShapeBorder _shape;
-    
-    @override
-    Widget build(BuildContext context) {
-        return Scaffold(
-            appBar: AppBar(
-                title: const Text('云端'),
-                actions: <Widget>[
-                    //MaterialDemoDocumentationButton(CardsDemo.routeName),
-                    IconButton(
-                        icon: const Icon(
-                            Icons.sentiment_very_satisfied,
-                            semanticLabel: 'update shape',
-                        ),
-                        onPressed: () {
-                            setState(() {
-                                _shape = _shape != null ? null : const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(16.0),
-                                        topRight: Radius.circular(16.0),
-                                        bottomLeft: Radius.circular(2.0),
-                                        bottomRight: Radius.circular(2.0),
-                                    ),
-                                );
-                            });
-                        },
-                    ),
-                ],
-            ),
-            body: ListView(
-                padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
-                children: destinations.map<Widget>((TravelDestination destination) {
-                    Widget child;
-                    switch (destination.type) {
-                        case CardDemoType.standard:
-                            child = TravelDestinationItem(destination: destination, shape: _shape);
-                            break;
-                        case CardDemoType.selectable:
-                            child = SelectableTravelDestinationItem(destination: destination, shape: _shape);
-                            break;
-                    }
-                    
-                    return Container(
-                        margin: const EdgeInsets.only(bottom: 8.0),
-                        child: child,
-                    );
-                }).toList(),
-            ),
-        );
+    _test() async{
+        Map m = await db.get('select * from cat where id=1');
+        print(m);
     }
 }
+
+

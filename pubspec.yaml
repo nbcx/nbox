@@ -30,6 +30,7 @@ dependencies:
     photo_view: ^0.1.2
     #数据持久化
     shared_preferences: ^0.4.3
+    sqflite: any
     # https://github.com/tekartik/synchronized.dart
     synchronized: ^1.5.3
     crypto: ^2.0.6
@@ -55,6 +56,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/app.db
     - assets/images/ali_connors.png
     - assets/images/ali_connors_sml.png
     - assets/images/folder.png
