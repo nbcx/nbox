@@ -10,6 +10,26 @@ enum CardDemoType {
     selectable,
 }
 
+const List<TravelDestination> destinations = <TravelDestination>[
+    TravelDestination(
+        assetName: 'places/india_thanjavur_market.png',
+        assetPackage: _kGalleryAssetsPackage,
+        title: 'Top 10 Cities to Visit in Tamil Nadu',
+        description: '七度',
+        city: 'Thanjavur',
+        location: 'Thanjavur, Tamil Nadu',
+    ),
+    TravelDestination(
+        assetName: 'places/india_tanjore_thanjavur_temple.png',
+        assetPackage: _kGalleryAssetsPackage,
+        title: 'Brihadisvara Temple',
+        description: '阿里OSS空间',
+        city: 'Thanjavur',
+        location: 'Thanjavur, Tamil Nadu',
+        type: CardDemoType.selectable,
+    ),
+];
+
 class CloudPage extends StatefulWidget {
 
     @override
@@ -18,6 +38,13 @@ class CloudPage extends StatefulWidget {
 
 class _CloudPageState extends State<CloudPage> {
     ShapeBorder _shape;
+
+    @override
+    void initState() {
+    // TODO: implement initState
+        super.initState();
+        _destinations();
+    }
 
     @override
     Widget build(BuildContext context) {
@@ -67,6 +94,11 @@ class _CloudPageState extends State<CloudPage> {
             ),
         );
     }
+
+    _destinations() async {
+        List data = await db.gets("SELECT * FROM cloud");
+        print(data);
+    }
 }
 
 
@@ -96,25 +128,7 @@ class TravelDestination {
     final CardDemoType type;
 }
 
-const List<TravelDestination> destinations = <TravelDestination>[
-    TravelDestination(
-        assetName: 'places/india_thanjavur_market.png',
-        assetPackage: _kGalleryAssetsPackage,
-        title: 'Top 10 Cities to Visit in Tamil Nadu',
-        description: '七度',
-        city: 'Thanjavur',
-        location: 'Thanjavur, Tamil Nadu',
-    ),
-    TravelDestination(
-        assetName: 'places/india_tanjore_thanjavur_temple.png',
-        assetPackage: _kGalleryAssetsPackage,
-        title: 'Brihadisvara Temple',
-        description: '阿里OSS空间',
-        city: 'Thanjavur',
-        location: 'Thanjavur, Tamil Nadu',
-        type: CardDemoType.selectable,
-    ),
-];
+
 
 class TravelDestinationItem extends StatelessWidget {
     

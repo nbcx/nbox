@@ -55,7 +55,7 @@ class Sqlite {
 
     // 检查数据库中, 表是否完整, 在部份android中, 会出现表丢失的情况
     Future checkTableIsRight() async {
-        List<String> expectTables = ['cat', 'widget', 'collection'];
+        List<String> expectTables = ['cat', 'widget', 'cloud'];
 
         List<String> tables = await getTables();
 
@@ -112,12 +112,12 @@ class Sqlite {
     Future<List<Map<String, dynamic>>> gets(String sql,[List<dynamic> arguments]) async{
         // 获取Test表的数据
         List<Map> data = await database.rawQuery(sql, arguments);
-        List<Map> expectedList = [
-            {"name": "updated name", "id": 1, "value": 9876, "num": 456.789},
-            {"name": "another name", "id": 2, "value": 12345678, "num": 3.1416}
-        ];
-        print(data);
-        print(expectedList);
+        //List<Map> expectedList = [
+        //    {"name": "updated name", "id": 1, "value": 9876, "num": 456.789},
+        //    {"name": "another name", "id": 2, "value": 12345678, "num": 3.1416}
+        //];
+        //print(data);
+        //print(expectedList);
         //assert(const DeepCollectionEquality().equals(list, expectedList));
         return data;
     }
@@ -133,13 +133,17 @@ class Sqlite {
         // 更新一条记录
         int count = await database.rawUpdate(
             'UPDATE Test SET name = ?, VALUE = ? WHERE name = ?',
-            ["updated name", "9876", "some name"]);
+            ["updated name", "9876", "some name"]
+        );
         print("updated: $count");
         return count;
     }
 
-    _add() async {
-        // 开启事务，增加两条记录
+    Future<T> transaction<T>(Future<T> action(Transaction txn), {bool exclusive}) {
+        database.transaction(action,exclusive:exclusive);
+    }
+
+    transactions(Function callback) async {
         await database.transaction((txn) async {
             int id1 = await txn.rawInsert(
                 'INSERT INTO Test(name, value, num) VALUES("some name", 1234, 456.789)');
@@ -149,6 +153,16 @@ class Sqlite {
                 ["another name", 12345678, 3.1416]);
             print("inserted2: $id2");
         });
+    }
+
+    /// Returns the last inserted record id
+    Future<int> add(String sql, [List<dynamic> arguments]) async{
+        return await database.rawInsert(sql,arguments);
+    }
+
+    // INSERT helper
+    Future<int> insert(String table, Map<String, dynamic> values,
+        {String nullColumnHack, ConflictAlgorithm conflictAlgorithm}) {
     }
 
     Future<int> del() async {

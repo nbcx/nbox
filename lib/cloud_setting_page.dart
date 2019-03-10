@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'session.dart';
+import 'sqlite.dart';
 
 class CloudSettingPage extends StatefulWidget {
     const CloudSettingPage({ Key key }) : super(key: key);
@@ -27,7 +28,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
     
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
     
-    void _handleSubmitted() {
+    void _handleSubmitted() async {
         final FormState form = _formKey.currentState;
         if (!form.validate()) {
             _autovalidate = true; // Start validating on every change.
@@ -39,6 +40,9 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
             Session.putString('_key', fd.key);
             Session.putString('_secret', fd.secret);
             showInSnackBar('${fd.name}\'s domain is ${fd.domain}');
+            fd.toString();
+            int result = await db.add('INSERT INTO cloud(name, config) VALUES("${fd.domain}", "${fd.toString()}")');
+            print("result $result");
         }
     }
     

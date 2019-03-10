@@ -105,12 +105,12 @@ class Oss {
 
 		String bucketname="picbox";
 
-		int expire = (new DateTime.now().millisecondsSinceEpoch/1000 + 3600).ceil();
+		int expire = (DateTime.now().millisecondsSinceEpoch/1000).ceil() + 3600;
 		print("expire $expire");
 		String StringToSign="GET\n\n\n$expire\n/$bucketname/";//.$file;
 		//进行utf8编码
 		List<int> policyText_utf8 = utf8.encode(StringToSign);//policyText
-		List<int> signature_pre  = new Hmac(sha1, key).convert(policyText_utf8).bytes;//policy
+		List<int> signature_pre  = Hmac(sha1, key).convert(policyText_utf8).bytes;//policy
 		String sign = base64.encode(signature_pre);
 		print("sign $sign");
 		String url="https://$domain?OSSAccessKeyId=$accessid&Expires=$expire&Signature=$sign";
