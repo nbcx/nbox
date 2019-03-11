@@ -105,20 +105,14 @@ class Sqlite {
         else {
             data = await database.rawQuery(sql,arguments);
         }
-        return data[0];
+        print("get length ${data.length}");
+        return data.length > 0? data[0]:null;
     }
 
     //获取多条记录
     Future<List<Map<String, dynamic>>> gets(String sql,[List<dynamic> arguments]) async{
         // 获取Test表的数据
         List<Map> data = await database.rawQuery(sql, arguments);
-        //List<Map> expectedList = [
-        //    {"name": "updated name", "id": 1, "value": 9876, "num": 456.789},
-        //    {"name": "another name", "id": 2, "value": 12345678, "num": 3.1416}
-        //];
-        //print(data);
-        //print(expectedList);
-        //assert(const DeepCollectionEquality().equals(list, expectedList));
         return data;
     }
 
@@ -129,12 +123,11 @@ class Sqlite {
         return count;
     }
 
-    Future<int> update() async {
-        // 更新一条记录
-        int count = await database.rawUpdate(
-            'UPDATE Test SET name = ?, VALUE = ? WHERE name = ?',
-            ["updated name", "9876", "some name"]
-        );
+    Future<int> update(String sql, [List<dynamic> arguments]) async{
+        //'UPDATE Test SET name = ?, VALUE = ? WHERE name = ?',
+        //["updated name", "9876", "some name"]
+        //更新一条记录
+        int count = await database.rawUpdate(sql,arguments);
         print("updated: $count");
         return count;
     }

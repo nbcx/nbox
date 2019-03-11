@@ -12,6 +12,13 @@ class Oss {
 	static String accesskey = Session.getString('_secret');
 	static String domain = Session.getString('_domain');
 	
+	Oss() {
+		print("-------------------------------------");
+		print("accessid $accessid");
+		print("accesskey $accesskey");
+		print("domain $domain");
+		print("-------------------------------------");
+	}
 
 	upload() async {
 		//验证文本域
@@ -40,10 +47,8 @@ class Oss {
 
 		//创建dio对象
 		Dio dio = new Dio(options);
-
 		//文件名
-		String fileName = "uploadImage.jpg";
-
+		String fileName = (DateTime.now().millisecondsSinceEpoch/1000).ceil().toString()+".jpg";
 		//创建一个formdata，作为dio的参数
 		FormData data = new FormData.from({
 			'Filename': fileName,
@@ -77,8 +82,6 @@ class Oss {
 		Dio dio = new Dio(options);
 		
 		try {
-			//https://picbox.oss-cn-beijing.aliyuncs.com
-			//String url = 'https://$domain/?OSSAccessKeyId=LTAIjKicGfE7GxKX&Expires=1552031597&Signature=5F4sg0rdjVmoxLs1mTER68oP1GU%3D';
 			String url = _signUrl();
 			Response response = await dio.get(url);//oss的服务器地址（包含地址前缀的那一串）
 			//print(response.data);
@@ -105,7 +108,7 @@ class Oss {
 
 		String bucketname="picbox";
 
-		int expire = (DateTime.now().millisecondsSinceEpoch/1000).ceil() + 3600;
+		int expire = (DateTime.now().millisecondsSinceEpoch/1000).ceil() + 10600;
 		print("expire $expire");
 		String StringToSign="GET\n\n\n$expire\n/$bucketname/";//.$file;
 		//进行utf8编码

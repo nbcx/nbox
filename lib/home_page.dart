@@ -104,7 +104,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
         List array = await Oss().list();
         String domain = Session.getString('_domain');
         for (var item in array) {
-            data.add("https://$domain/${item['Key']}");
+            print("https://$domain/${item['Key']}?x-oss-process=image/resize,h_360");
+            data.add("https://$domain/${item['Key']}?x-oss-process=image/resize,h_360");
         }
         indexPage++;
         setState(() {

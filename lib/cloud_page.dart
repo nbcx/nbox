@@ -3,33 +3,6 @@ import 'package:flutter/material.dart';
 import 'cloud_setting_page.dart';
 import 'sqlite.dart';
 
-const String _kGalleryAssetsPackage = 'flutter_gallery_assets';
-
-enum CardDemoType {
-    standard,
-    selectable,
-}
-
-const List<TravelDestination> destinations = <TravelDestination>[
-    TravelDestination(
-        assetName: 'places/india_thanjavur_market.png',
-        assetPackage: _kGalleryAssetsPackage,
-        title: 'Top 10 Cities to Visit in Tamil Nadu',
-        description: '七度',
-        city: 'Thanjavur',
-        location: 'Thanjavur, Tamil Nadu',
-    ),
-    TravelDestination(
-        assetName: 'places/india_tanjore_thanjavur_temple.png',
-        assetPackage: _kGalleryAssetsPackage,
-        title: 'Brihadisvara Temple',
-        description: '阿里OSS空间',
-        city: 'Thanjavur',
-        location: 'Thanjavur, Tamil Nadu',
-        type: CardDemoType.selectable,
-    ),
-];
-
 class CloudPage extends StatefulWidget {
 
     @override
@@ -39,9 +12,10 @@ class CloudPage extends StatefulWidget {
 class _CloudPageState extends State<CloudPage> {
     ShapeBorder _shape;
 
+    List<Data> destinations = [];
+    
     @override
     void initState() {
-    // TODO: implement initState
         super.initState();
         _destinations();
     }
@@ -55,40 +29,21 @@ class _CloudPageState extends State<CloudPage> {
                     //MaterialDemoDocumentationButton(CardsDemo.routeName),
                     IconButton(
                         icon: const Icon(
-                            Icons.sentiment_very_satisfied,
-                            semanticLabel: 'update shape',
+                            Icons.add,
+                            semanticLabel: 'add cloud',
                         ),
                         onPressed: () {
-                            setState(() {
-                                _shape = _shape != null ? null : const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(16.0),
-                                        topRight: Radius.circular(16.0),
-                                        bottomLeft: Radius.circular(2.0),
-                                        bottomRight: Radius.circular(2.0),
-                                    ),
-                                );
-                            });
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => CloudSettingPage()));
                         },
                     ),
                 ],
             ),
             body: ListView(
                 padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
-                children: destinations.map<Widget>((TravelDestination destination) {
-                    Widget child;
-                    switch (destination.type) {
-                        case CardDemoType.standard:
-                            child = TravelDestinationItem(destination: destination, shape: _shape);
-                            break;
-                        case CardDemoType.selectable:
-                            child = SelectableTravelDestinationItem(destination: destination, shape: _shape);
-                            break;
-                    }
-
+                children: destinations.map<Widget>((Data destination) {
                     return Container(
                         margin: const EdgeInsets.only(bottom: 8.0),
-                        child: child,
+                        child: Item(destination: destination, shape: _shape),
                     );
                 }).toList(),
             ),
@@ -97,93 +52,63 @@ class _CloudPageState extends State<CloudPage> {
 
     _destinations() async {
         List data = await db.gets("SELECT * FROM cloud");
-        print(data);
+        if(data.length < 1) {
+            return null;
+        }
+        for (var item in data) {
+            destinations.add(Data(
+                id:item['id'],
+                assetName: 'places/india_thanjavur_market.png',
+                assetPackage: 'flutter_gallery_assets',
+                title: 'Top 10 Cities to Visit in Tamil Nadu',
+                description: item['name'],
+                city: 'Thanjavur',
+                location: 'Thanjavur, Tamil Nadu',
+            ));
+        }
+        setState(() {});
     }
 }
 
-
-class TravelDestination {
-    
-    const TravelDestination({
+class Data {
+    const Data({
+        @required this.id,
         @required this.assetName,
         @required this.assetPackage,
         @required this.title,
         @required this.description,
         @required this.city,
         @required this.location,
-        this.type = CardDemoType.standard,
     }) : assert(assetName != null),
             assert(assetPackage != null),
             assert(title != null),
             assert(description != null),
             assert(city != null),
             assert(location != null);
-    
+    final int id;
     final String assetName;
     final String assetPackage;
     final String title;
     final String description;
     final String city;
     final String location;
-    final CardDemoType type;
 }
 
-
-
-class TravelDestinationItem extends StatelessWidget {
+class Item extends StatefulWidget {
     
-    const TravelDestinationItem({ Key key, @required this.destination, this.shape })
+    const Item({ Key key, @required this.destination, this.shape })
         : assert(destination != null),
             super(key: key);
     
-    static const double height = 156.0;
-    final TravelDestination destination;
+    final Data destination;
     final ShapeBorder shape;
     
     @override
-    Widget build(BuildContext context) {
-        return SafeArea(
-            top: false,
-            bottom: false,
-            child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: Column(
-                    children: <Widget>[
-                        //const SectionTitle(title: 'Normal'),
-                        SizedBox(
-                            height: height,
-                            child: Card(
-                                // This ensures that the Card's children are clipped correctly.
-                                clipBehavior: Clip.antiAlias,
-                                shape: shape,
-                                child: TravelDestinationContent(destination: destination),
-                            ),
-                        ),
-                    ],
-                ),
-            ),
-        );
-    }
-    
+    _ItemState createState() => _ItemState();
 }
 
-
-class SelectableTravelDestinationItem extends StatefulWidget {
+class _ItemState extends State<Item> {
     
-    const SelectableTravelDestinationItem({ Key key, @required this.destination, this.shape })
-        : assert(destination != null),
-            super(key: key);
-    
-    final TravelDestination destination;
-    final ShapeBorder shape;
-    
-    @override
-    _SelectableTravelDestinationItemState createState() => _SelectableTravelDestinationItemState();
-}
-
-class _SelectableTravelDestinationItemState extends State<SelectableTravelDestinationItem> {
-    
-    // This height will allow for all the Card's content to fit comfortably within the card.
     static const double height = 156.0;
     bool _isSelected = false;
     
@@ -201,7 +126,6 @@ class _SelectableTravelDestinationItemState extends State<SelectableTravelDestin
                         SizedBox(
                             height: height,
                             child: Card(
-                                // This ensures that the Card's children (including the ink splash) are clipped correctly.
                                 clipBehavior: Clip.antiAlias,
                                 shape: widget.shape,
                                 child: InkWell(
@@ -212,18 +136,16 @@ class _SelectableTravelDestinationItemState extends State<SelectableTravelDestin
                                         });
                                     },
                                     onTap: () {
-                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => CloudSettingPage()));
+                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => CloudSettingPage(
+                                            id:widget.destination.id
+                                        )));
                                     },
-                                    // Generally, material cards use onSurface with 12% opacity for the pressed state.
                                     splashColor: colorScheme.onSurface.withOpacity(0.12),
-                                    // Generally, material cards do not have a highlight overlay.
                                     highlightColor: Colors.transparent,
                                     child: Stack(
                                         children: <Widget>[
                                             Container(
                                                 color: _isSelected
-                                                // Generally, material cards use primary with 8% opacity for the selected state.
-                                                // See: https://material.io/design/interaction/states.html#anatomy
                                                     ? colorScheme.primary.withOpacity(0.08)
                                                     : Colors.transparent,
                                             ),
@@ -276,7 +198,7 @@ class TravelDestinationContent extends StatelessWidget {
         : assert(destination != null),
             super(key: key);
     
-    final TravelDestination destination;
+    final Data destination;
     
     @override
     Widget build(BuildContext context) {
@@ -285,7 +207,6 @@ class TravelDestinationContent extends StatelessWidget {
         final TextStyle descriptionStyle = theme.textTheme.subhead;
         
         final List<Widget> children = <Widget>[
-            // Description and share/explore buttons.
             Padding(
                 padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
                 child: DefaultTextStyle(
@@ -310,32 +231,30 @@ class TravelDestinationContent extends StatelessWidget {
                 ),
             ),
         ];
-        
-        if (destination.type == CardDemoType.standard) {
-            children.add(
-                // share, explore buttons
-                ButtonTheme.bar(
-                    child: ButtonBar(
-                        alignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                            FlatButton(
-                                child: Text('SHARE', semanticsLabel: 'Share ${destination.title}'),
-                                textColor: Colors.amber.shade500,
-                                onPressed: () {
-                                    print('pressed');
-                                    _test();
-                                },
-                            ),
-                            FlatButton(
-                                child: Text('EXPLORE', semanticsLabel: 'Explore ${destination.title}'),
-                                textColor: Colors.amber.shade500,
-                                onPressed: () { print('pressed'); },
-                            ),
-                        ],
-                    ),
+
+        children.add(
+            // share, explore buttons
+            ButtonTheme.bar(
+                child: ButtonBar(
+                    alignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                        FlatButton(
+                            child: Text('SHARE', semanticsLabel: 'Share ${destination.title}'),
+                            textColor: Colors.amber.shade500,
+                            onPressed: () {
+                                print('pressed');
+                                _test();
+                            },
+                        ),
+                        FlatButton(
+                            child: Text('EXPLORE', semanticsLabel: 'Explore ${destination.title}'),
+                            textColor: Colors.amber.shade500,
+                            onPressed: () { print('pressed'); },
+                        ),
+                    ],
                 ),
-            );
-        }
+            ),
+        );
         
         return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,6 +266,43 @@ class TravelDestinationContent extends StatelessWidget {
         Map m = await db.get('select * from cat where id=1');
         print(m);
     }
+}
+
+class TravelDestinationItem extends StatelessWidget {
+    
+    const TravelDestinationItem({ Key key, @required this.destination, this.shape })
+        : assert(destination != null),
+            super(key: key);
+    
+    static const double height = 156.0;
+    final Data destination;
+    final ShapeBorder shape;
+    
+    @override
+    Widget build(BuildContext context) {
+        return SafeArea(
+            top: false,
+            bottom: false,
+            child: Padding(
+                padding: const EdgeInsets.all(1.0),
+                child: Column(
+                    children: <Widget>[
+                        //const SectionTitle(title: 'Normal'),
+                        SizedBox(
+                            height: height,
+                            child: Card(
+                                // This ensures that the Card's children are clipped correctly.
+                                clipBehavior: Clip.antiAlias,
+                                shape: shape,
+                                child: TravelDestinationContent(destination: destination),
+                            ),
+                        ),
+                    ],
+                ),
+            ),
+        );
+    }
+    
 }
 
 

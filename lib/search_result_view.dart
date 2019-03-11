@@ -72,7 +72,7 @@ class _SearchResultViewState extends State<SearchResultView> with AutomaticKeepA
                     moreInfoColor: Colors.black54,
                     showMore: true,
                 ),
-                child:new GridView.builder(
+                child:GridView.builder(
                     gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                     itemCount: data.length,
                     itemBuilder: buildImage,
