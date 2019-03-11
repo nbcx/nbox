@@ -73,31 +73,34 @@ class Oss {
 		}
 	}
 	
-	Future<List> list() async {
+	Future<Map> list() async {
 		//dio的请求配置，这一步非常重要！
 		Options options = new Options();
 		options.responseType = ResponseType.PLAIN;
 		
 		//创建dio对象
 		Dio dio = new Dio(options);
-		
+		Map returns = {};
 		try {
 			String url = _signUrl();
 			Response response = await dio.get(url);//oss的服务器地址（包含地址前缀的那一串）
-			//print(response.data);
+
 			Map map = xml2map(response.data);
-			//print(map);
-			List contents = map['ListBucketResult']['Contents'];
-			//print(contents);
-			print("key ${contents[0]['Key']}");
-			return contents;
+			returns['code'] = 0;
+			returns['data'] = map['ListBucketResult']['Contents'];
+			return returns;
 		}
 		on DioError catch(e) {
 			print(e.message);
+			Map map = xml2map(e.response.data);
+			if(map.containsKey('Error')) {
+				returns['code'] = map['Error']['Code'];
+				returns['message'] = map['Error']['Message'];
+			}
 			print(e.response.data);
 			print(e.response.headers);
 			print(e.response.request);
-			return null;
+			return returns;
 		}
 	}
 	

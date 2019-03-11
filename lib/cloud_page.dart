@@ -52,6 +52,7 @@ class _CloudPageState extends State<CloudPage> {
 
     _destinations() async {
         List data = await db.gets("SELECT * FROM cloud");
+        print(data);
         if(data.length < 1) {
             return null;
         }

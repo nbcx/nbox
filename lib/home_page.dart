@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     int indexPage = 1;
     List<String> data = [];
 
+    String tips;
 
     @override
     bool get wantKeepAlive => true;
@@ -53,7 +54,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
             ]
         ),
         body: Center(
-            child: new EasyRefresh(
+            child: EasyRefresh(
                 key: _easyRefreshKey,
                 firstRefresh: true,
                 behavior: ScrollOverBehavior(),
@@ -82,28 +83,53 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                     moreInfoColor: Colors.black54,
                     showMore: true,
                 ),
-                child: new ListView.builder(
+                emptyWidget: _tips(),
+                child: ListView.builder(
                     //ListView的Item
                     itemCount: data.length,
                     itemBuilder: (BuildContext context, int index) {
-                        return new Container(
+                        return Container(
                             height: 360,
                             child: MeiZiListItem(data[index], currentIndex: index)
                         );
                     }
                 ),
-              onRefresh: ()=>_onRefresh(),
-              loadMore: ()=>_more(),
+                onRefresh: ()=>_onRefresh(),
+                loadMore: ()=>_more(),
             )),
       );
+    }
+
+    Widget _tips() {
+        if(tips == null) {
+            return null;
+        }
+        return Container(
+            padding: EdgeInsets.all(20.0),
+            width: double.infinity,
+            height: 500.0,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                    Icon(Icons.inbox,size: 50.0,color: Colors.grey),
+                    Text(tips,style: TextStyle(fontSize: 18.0, color: Colors.grey))
+                ],
+            ),
+        );
     }
 
     Future<void> _onRefresh() async{
         indexPage = 1;
         data.clear();
-        List array = await Oss().list();
+        Map tmp = await Oss().list();
+        if(tmp['code'] != 0) {
+            tips = tmp['message'];
+            return null;
+        }
+        List _list = tmp['data'];
         String domain = Session.getString('_domain');
-        for (var item in array) {
+        for (var item in _list) {
             print("https://$domain/${item['Key']}?x-oss-process=image/resize,h_360");
             data.add("https://$domain/${item['Key']}?x-oss-process=image/resize,h_360");
         }
