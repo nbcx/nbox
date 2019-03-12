@@ -54,9 +54,8 @@ class _FileManagePageState extends State<FileManagePage> {
                                 child: new Text("选项二")
                             )
                         ]
-                    ),*/
-                    //MaterialDemoDocumentationButton(SearchDemo.routeName),
-                    
+                    ),
+                    */
                 ],
             ),
             body: FileView(),//SearchResultView(),

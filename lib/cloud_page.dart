@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'cloud_setting_page.dart';
 import 'sqlite.dart';
+import 'event_bus.dart';
+import 'oss.dart';
 
 class CloudPage extends StatefulWidget {
 
@@ -18,6 +20,9 @@ class _CloudPageState extends State<CloudPage> {
     void initState() {
         super.initState();
         _destinations();
+        bus.on("changecloud", (arg) {
+            _destinations();
+        });
     }
 
     @override
@@ -56,6 +61,7 @@ class _CloudPageState extends State<CloudPage> {
         if(data.length < 1) {
             return null;
         }
+        destinations.clear();
         for (var item in data) {
             destinations.add(Data(
                 id:item['id'],
@@ -173,26 +179,6 @@ class _ItemState extends State<Item> {
     }
 }
 
-class SectionTitle extends StatelessWidget {
-    const SectionTitle({
-        Key key,
-        this.title,
-    }) : super(key: key);
-    
-    final String title;
-    
-    @override
-    Widget build(BuildContext context) {
-        return Padding(
-            padding: const EdgeInsets.fromLTRB(4.0, 4.0, 4.0, 12.0),
-            child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(title, style: Theme.of(context).textTheme.subhead),
-            ),
-        );
-    }
-}
-
 class TravelDestinationContent extends StatelessWidget {
     
     const TravelDestinationContent({ Key key, @required this.destination })
@@ -240,17 +226,19 @@ class TravelDestinationContent extends StatelessWidget {
                     alignment: MainAxisAlignment.start,
                     children: <Widget>[
                         FlatButton(
-                            child: Text('SHARE', semanticsLabel: 'Share ${destination.title}'),
+                            child: Text('Buckets', semanticsLabel: 'Share ${destination.title}'),
                             textColor: Colors.amber.shade500,
                             onPressed: () {
                                 print('pressed');
-                                _test();
+                                Oss().listBucket();
                             },
                         ),
                         FlatButton(
                             child: Text('EXPLORE', semanticsLabel: 'Explore ${destination.title}'),
                             textColor: Colors.amber.shade500,
-                            onPressed: () { print('pressed'); },
+                            onPressed: () {
+                                print('pressed');
+                            },
                         ),
                     ],
                 ),
@@ -262,48 +250,5 @@ class TravelDestinationContent extends StatelessWidget {
             children: children,
         );
     }
-
-    _test() async{
-        Map m = await db.get('select * from cat where id=1');
-        print(m);
-    }
 }
-
-class TravelDestinationItem extends StatelessWidget {
-    
-    const TravelDestinationItem({ Key key, @required this.destination, this.shape })
-        : assert(destination != null),
-            super(key: key);
-    
-    static const double height = 156.0;
-    final Data destination;
-    final ShapeBorder shape;
-    
-    @override
-    Widget build(BuildContext context) {
-        return SafeArea(
-            top: false,
-            bottom: false,
-            child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: Column(
-                    children: <Widget>[
-                        //const SectionTitle(title: 'Normal'),
-                        SizedBox(
-                            height: height,
-                            child: Card(
-                                // This ensures that the Card's children are clipped correctly.
-                                clipBehavior: Clip.antiAlias,
-                                shape: shape,
-                                child: TravelDestinationContent(destination: destination),
-                            ),
-                        ),
-                    ],
-                ),
-            ),
-        );
-    }
-    
-}
-
 

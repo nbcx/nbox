@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'session.dart';
 import 'sqlite.dart';
 import 'dart:convert' show json;
+import 'event_bus.dart';
 
 class CloudSettingPage extends StatefulWidget {
     final int id;
@@ -83,6 +84,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                 int result = await db.add('INSERT INTO cloud(name, config) VALUES(?,?)',[fd.name, fd.toJson()]);
                 print("result $result");
             }
+            bus.emit("changecloud", 1);
             showInSnackBar('${fd.name}\'s domain is ${fd.domain}');
             Navigator.of(context).pop(true);
         }

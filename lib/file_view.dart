@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
-
-import 'package:path_provider/path_provider.dart';
+import 'oss.dart';
 
 class FileView extends StatefulWidget {
     @override
@@ -25,6 +24,24 @@ class _FileViewState extends State<FileView> {
     String sDCardDir;
     List<double> position = [];
     
+    @override
+    void initState() {
+        // TODO: implement initState
+        super.initState();
+        _initFiles();
+    }
+    
+    _initFiles() async {
+        Map result = await Oss().bucket();
+        print(result);
+        //for (var item in files['commonPrefixes']) {
+        //
+        //}
+        for (var item in result['contents']) {
+            files.add(File(false,item['Key'],0,'png'));
+        }
+        setState(() {});
+    }
     
     @override
     Widget build(BuildContext context) {
@@ -139,11 +156,11 @@ class _FileViewState extends State<FileView> {
         }
     }
     
-    
     openFile(String path) {
         final Map<String, dynamic> args = <String, dynamic>{'path': path};
         _channel.invokeMethod('openFile', args);
     }
+    
 }
 
 class File {

@@ -122,12 +122,12 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     Future<void> _onRefresh() async{
         indexPage = 1;
         data.clear();
-        Map tmp = await Oss().list();
+        Map tmp = await Oss().bucket();
         if(tmp['code'] != 0) {
             tips = tmp['message'];
             return null;
         }
-        List _list = tmp['data'];
+        List _list = tmp['contents'];
         String domain = Session.getString('_domain');
         for (var item in _list) {
             print("https://$domain/${item['Key']}?x-oss-process=image/resize,h_360");
