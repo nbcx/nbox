@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'search_result_view.dart';
 import 'file_view.dart';
 
+enum DismissDialogAction {
+    cancel,
+    discard,
+    save,
+}
 class FileManagePage extends StatefulWidget {
 
   @override
@@ -13,7 +18,6 @@ class _FileManagePageState extends State<FileManagePage> {
   
     final _SearchDemoSearchDelegate _delegate = _SearchDemoSearchDelegate();
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  
     int _lastIntegerSelected;
   
     @override
@@ -38,29 +42,45 @@ class _FileManagePageState extends State<FileManagePage> {
                         }
                       },
                     ),
-                    /*
-                    new PopupMenuButton(
-                        icon:const Icon(Icons.add),
-                        onSelected: (String value){
-                            print("onSelected $value");
-                        },
-                        itemBuilder: (BuildContext context) =><PopupMenuItem<String>>[
-                            new PopupMenuItem(
-                                value:"选项一的内容",
-                                child: new Text("选项一")
-                            ),
-                            new PopupMenuItem(
-                                value: "选项二的内容",
-                                child: new Text("选项二")
-                            )
-                        ]
+                    /**/
+                    IconButton(
+                        icon: Icon(
+                            Theme.of(context).platform == TargetPlatform.iOS
+                                ? Icons.more_horiz
+                                : Icons.more_vert,
+                        ),
+                        tooltip: 'Show menu',
+                        onPressed: (){
+                            showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
+                                return Container(
+                                    child: Padding(
+                                        padding: const EdgeInsets.all(132.0),
+                                        child: Text('This is the modal bottom sheet. Tap anywhere to dismiss.',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                color: Theme.of(context).accentColor,
+                                                fontSize: 24.0
+                                            )
+                                        )
+                                    )
+                                );
+                            });
+                            /*
+                            Navigator.push(context, MaterialPageRoute<DismissDialogAction>(
+                                builder: (BuildContext context) => ListDemo(),
+                                fullscreenDialog: true,
+                            ));
+                            */
+                            //return _bottomSheet == null ? _showConfigurationSheet : null;
+                        }
                     ),
-                    */
+
                 ],
             ),
             body: FileView(),//SearchResultView(),
         );
     }
+
 }
 
 class _SearchDemoSearchDelegate extends SearchDelegate<int> {

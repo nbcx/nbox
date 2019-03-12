@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-            title: Text('图片盒子'),
+            title: Text('网盘盒子'),
             actions: <Widget>[
                 new PopupMenuButton(
                     icon:const Icon(Icons.add),

@@ -8,7 +8,7 @@ class FileView extends StatefulWidget {
     _FileViewState createState() => _FileViewState();
 }
 
-class _FileViewState extends State<FileView> {
+class _FileViewState extends State<FileView> with AutomaticKeepAliveClientMixin {
     
     List<File> files = [
         File(true, 'Music', 12, 'png'),
@@ -16,6 +16,9 @@ class _FileViewState extends State<FileView> {
         File(false, 'teusic.txt', 12, 'txt'),
         File(false, 'Music.png', 12, 'png'),
     ];
+
+    @override
+    bool get wantKeepAlive => true;
     
     MethodChannel _channel = MethodChannel('openFileChannel');
     Directory parentDir;
@@ -33,7 +36,7 @@ class _FileViewState extends State<FileView> {
     
     _initFiles() async {
         Map result = await Oss().bucket();
-        print(result);
+        print(result['commonPrefixes']);
         //for (var item in files['commonPrefixes']) {
         //
         //}
@@ -54,6 +57,17 @@ class _FileViewState extends State<FileView> {
                 }
             },
             child: Scaffold(
+                appBar: PreferredSize(
+                    child: AppBar(
+                        elevation: 0.4,
+                        centerTitle: false,
+                        backgroundColor: Color(0xffeeeeee),
+                        title: Text(
+                            'oss',
+                            style: TextStyle(color: Colors.black),
+                        ),
+                    ),
+                    preferredSize: Size.fromHeight(30)),
                 /*
                 appBar: AppBar(
                     title: Text(

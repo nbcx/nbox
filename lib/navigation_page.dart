@@ -6,7 +6,6 @@ import 'cloud_page.dart';
 import 'setting_page.dart';
 import 'file_manage_page.dart';
 
-
 class NavigationPage extends StatefulWidget {
 	
 	@override
