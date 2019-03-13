@@ -11,7 +11,8 @@ class Oss {
 
 	static String accessid  = Session.getString('_key');
 	static String accesskey = Session.getString('_secret');
-	static String domain = Session.getString('_domain');
+	String domain = Session.getString('_domain');
+	String bucketName = 'picbox';
 	
 	Oss() {
 		print("-------------------------------------");
@@ -29,7 +30,7 @@ class Oss {
 		try {
 			
 			Response response = await dio.get(
-				"https://oss-cn-beijing.aliyuncs.com",
+				domain,
 				options: headerSign()
 			);
 			Map map = xml2map(response.data);
@@ -45,21 +46,32 @@ class Oss {
 		}
 		return returns;
 	}
-	
-	Future<Map> bucket({String delimiter}) async {
+
+	Future<Map> bucket({String prefix,String delimiter='/',int maxKeys=100,String marker}) async {
 		//创建dio对象
 		Dio dio = new Dio();
-		Map returns = {};
+		Map returns = Map();
+		String url = "https://$bucketName.$domain?maxKeys=$maxKeys";
 		try {
-			Response response = await dio.get(
-				"https://$domain?delimiter=/",
-				options: headerSign(args: 'picbox')
+			if(delimiter != null) {
+				url ="$url&delimiter=$delimiter";
+			}
+			if(prefix != null) {
+				url ="$url&prefix=$prefix";
+			}
+			if(marker != null) {
+				url ="$url&marker=$marker";
+			}
+			print(url);
+			Response response = await dio.get(url,
+				options: headerSign(args: bucketName)
 			);
 			Map map = xml2map(response.data);
 			print(map);
 			returns['code'] = 0;
-			returns['contents'] = map['ListBucketResult']['Contents'];
-			returns['commonPrefixes'] = map['ListBucketResult']['CommonPrefixes'];
+
+			returns['contents'] = map['ListBucketResult']['Contents']??[];
+			returns['commonPrefixes'] = map['ListBucketResult']['CommonPrefixes']??[];
 			return returns;
 		}
 		on DioError catch(e) {

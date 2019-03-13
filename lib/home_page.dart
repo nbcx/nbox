@@ -25,9 +25,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
 
     String tips;
 
+    final Oss oss = Oss();
+
     @override
     bool get wantKeepAlive => true;
-    
+
     @override
     Widget build(BuildContext context) {
       return Scaffold(
@@ -122,16 +124,14 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     Future<void> _onRefresh() async{
         indexPage = 1;
         data.clear();
-        Map tmp = await Oss().bucket();
+        Map tmp = await oss.bucket();
         if(tmp['code'] != 0) {
             tips = tmp['message'];
             return null;
         }
         List _list = tmp['contents'];
-        String domain = Session.getString('_domain');
         for (var item in _list) {
-            print("https://$domain/${item['Key']}?x-oss-process=image/resize,h_360");
-            data.add("https://$domain/${item['Key']}?x-oss-process=image/resize,h_360");
+            data.add("https://${oss.bucketName}.${oss.domain}/${item['Key']}?x-oss-process=image/resize,h_360");
         }
         indexPage++;
         setState(() {
@@ -168,30 +168,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
             setState(() {});
         }
     }
-    
-    Future<void> _onRefresh_bak() async {
-        print('_onRefresh');
-        indexPage = 1;
-        data.clear();
-        Dio dio = new Dio();
-        Response response;
-        response = await dio.get('http://image.baidu.com/channel/listjson?pn=$indexPage&rn=30&tag1=美女&tag2=%E5%85%A8%E9%83%A8&ie=utf8');
-        Map map = json.decode(response.data);
-        var array = map["data"];
-        for (var item in array) {
-            data.add(item["image_url"]);
-        }
-        indexPage++;
-        setState(() {
-            //str.clear();
-            //str.addAll(addStr);
-            _easyRefreshKey.currentState.waitState(() {
-                setState(() {
-                    _loadMore = true;
-                });
-            });
-        });
-    }
+
 
     Widget buildImage(context, index) {
         return new Item(

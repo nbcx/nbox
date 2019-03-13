@@ -38,9 +38,9 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
         _easyRefreshKey.currentState.callRefresh();
     }
 
-    Future<void> _refresh() async {
-        files.clear();
-        Map result = await Oss().bucket();
+
+    _pull([String delimiter='/']) async {
+        Map result = await Oss().bucket(prefix: 'test/');
         for (var item in result['commonPrefixes']) {
             files.add(File(true,item['Prefix'],10,'png'));
         }
@@ -48,6 +48,11 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
             files.add(File(false,item['Key'],0,'png'));
         }
         setState(() {});
+    }
+
+    Future<void> _refresh() async {
+        files.clear();
+        _pull('test');
     }
 
     Future<void> _more() async {
