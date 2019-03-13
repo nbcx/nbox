@@ -230,7 +230,6 @@ class TravelDestinationContent extends StatelessWidget {
                             textColor: Colors.amber.shade500,
                             onPressed: () {
                                 print('pressed');
-                                Oss().listBucket();
                             },
                         ),
                         FlatButton(

@@ -52,7 +52,7 @@ class _NavigationPageState extends State<NavigationPage> with SingleTickerProvid
 					),
 					BottomNavigationBarItem(
 						icon: Icon(Icons.style),
-						title: Text('当前库')
+						title: Text('文件夹')
 					),
 					BottomNavigationBarItem(
 						icon: Icon(Icons.cloud),

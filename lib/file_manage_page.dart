@@ -1,86 +1,238 @@
 import 'package:flutter/material.dart';
 import 'search_result_view.dart';
-import 'file_view.dart';
+import 'bucket_view.dart';
+import 'event_bus.dart';
+import 'click_effect.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'oss.dart';
 
-enum DismissDialogAction {
-    cancel,
-    discard,
-    save,
-}
 class FileManagePage extends StatefulWidget {
 
   @override
   _FileManagePageState createState() => _FileManagePageState();
-  
 }
 
-class _FileManagePageState extends State<FileManagePage> {
-  
+class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAliveClientMixin {
+    
+    GlobalKey<EasyRefreshState> _easyRefreshKey = new GlobalKey<EasyRefreshState>();
+    GlobalKey<RefreshHeaderState> _headerKey = new GlobalKey<RefreshHeaderState>();
+    GlobalKey<RefreshFooterState> _footerKey = new GlobalKey<RefreshFooterState>();
+
+    ScrollController controller = ScrollController();
+    
     final _SearchDemoSearchDelegate _delegate = _SearchDemoSearchDelegate();
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     int _lastIntegerSelected;
-  
+
+    String appTitle = '文件夹';
+    String sDCardDir;
+    List<double> position = [];
+    List<File> files = [];
+    
+    @override
+    bool get wantKeepAlive => true;
+    
+    _uploads() async {
+        Map map = await Oss().upload();
+        print(map);
+        _easyRefreshKey.currentState.callRefresh();
+    }
+
+    Future<void> _refresh() async {
+        files.clear();
+        Map result = await Oss().bucket();
+        for (var item in result['commonPrefixes']) {
+            files.add(File(true,item['Prefix'],10,'png'));
+        }
+        for (var item in result['contents']) {
+            files.add(File(false,item['Key'],0,'png'));
+        }
+        setState(() {});
+    }
+
+    Future<void> _more() async {
+        return null;
+    }
+    
     @override
     Widget build(BuildContext context) {
         return Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
-                title: const Text('当前库'),
+                leading: null == sDCardDir?null : IconButton(
+                    icon: Icon(
+                        Icons.chevron_left,
+                        color: Colors.black,
+                    ),
+                    onPressed: () {
+                        if (null != sDCardDir) {
+                            appTitle = '文件夹';
+                            sDCardDir = null;
+                            _refresh();
+                            jumpToPosition(false);
+                        }
+                        else {
+                            Navigator.pop(context);
+                        }
+                    }),
+                title: Text(appTitle),
                 actions: <Widget>[
                     IconButton(
                       tooltip: 'Search',
                       icon: const Icon(Icons.search),
                       onPressed: () async {
-                        final int selected = await showSearch<int>(
-                            context: context,
-                            delegate: _delegate,
-                        );
-                        if (selected != null && selected != _lastIntegerSelected) {
-                            setState(() {
-                                _lastIntegerSelected = selected;
-                            });
-                        }
+                            final int selected = await showSearch<int>(
+                                context: context,
+                                delegate: _delegate,
+                            );
+                            if (selected != null && selected != _lastIntegerSelected) {
+                                setState(() {
+                                    _lastIntegerSelected = selected;
+                                });
+                            }
                       },
                     ),
-                    /**/
+                    IconButton(
+                        icon: Icon(Icons.add),
+                        tooltip: 'Upload Files',
+                        onPressed: (){
+                            _uploads();
+                        }
+                    ),
                     IconButton(
                         icon: Icon(
                             Theme.of(context).platform == TargetPlatform.iOS
                                 ? Icons.more_horiz
                                 : Icons.more_vert,
                         ),
-                        tooltip: 'Show menu',
+                        tooltip: 'Show Bucket',
                         onPressed: (){
                             showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
-                                return Container(
-                                    child: Padding(
-                                        padding: const EdgeInsets.all(132.0),
-                                        child: Text('This is the modal bottom sheet. Tap anywhere to dismiss.',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                color: Theme.of(context).accentColor,
-                                                fontSize: 24.0
-                                            )
-                                        )
-                                    )
-                                );
+                                return BucketView();
                             });
-                            /*
-                            Navigator.push(context, MaterialPageRoute<DismissDialogAction>(
-                                builder: (BuildContext context) => ListDemo(),
-                                fullscreenDialog: true,
-                            ));
-                            */
-                            //return _bottomSheet == null ? _showConfigurationSheet : null;
                         }
                     ),
 
                 ],
             ),
-            body: FileView(),//SearchResultView(),
+            body: Scaffold(
+                appBar: PreferredSize(
+                    child: AppBar(
+                        elevation: 0.4,
+                        centerTitle: false,
+                        backgroundColor: Color(0xffeeeeee),
+                        title: Text(
+                            'oss',
+                            style: TextStyle(color: Colors.black),
+                        ),
+                    ),
+                    preferredSize: Size.fromHeight(30)
+                ),
+                backgroundColor: Color(0xfff3f3f3),
+                body: Center(
+                    child: EasyRefresh(
+                        key: _easyRefreshKey,
+                        firstRefresh: true,
+                        behavior: ScrollOverBehavior(),
+                        refreshHeader: ClassicsHeader(
+                            key: _headerKey,
+                            refreshText: '下拉刷新',
+                            refreshReadyText: '释放加载',
+                            refreshingText: "正在刷新...",
+                            refreshedText: "刷新结束",
+                            moreInfo: "更新于 %T",
+                            bgColor: Colors.transparent,
+                            textColor: Colors.black87,
+                            moreInfoColor: Colors.black54,
+                            showMore: true,
+                        ),
+                        refreshFooter: ClassicsFooter(
+                            key: _footerKey,
+                            loadText: "上拉加载",
+                            loadReadyText: "释放加载",
+                            loadingText: "正在加载",
+                            loadedText: "加载结束",
+                            noMoreText: "没有更多数据",
+                            moreInfo: "更新于 %T",
+                            bgColor: Colors.transparent,
+                            textColor: Colors.black87,
+                            moreInfoColor: Colors.black54,
+                            showMore: true,
+                        ),
+                        child:ListView.builder(
+                            controller: controller,
+                            itemCount: files.length != 0 ? files.length : 1,
+                            itemBuilder: (BuildContext context, int index) {
+                                if (files.length != 0) {
+                                    return buildListViewItem(files[index]);
+                                }
+                                else {
+                                    return Padding(
+                                        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 2 - MediaQuery
+                                            .of(context).padding.top - 56.0),
+                                        child: Center(
+                                            child: Text('The folder is empty'),
+                                        ),
+                                    );
+                                }
+                            },
+                        ),
+                        onRefresh:() => _refresh(),
+                        loadMore:() => _more(),
+                    ),
+                )
+            ),//SearchResultView(),
         );
     }
 
+    Widget buildListViewItem(File file) {
+        return ClickEffect(
+            child: Column(
+                children: <Widget>[
+                    ListTile(
+                        leading: Image.asset(selectIcon(file)),
+                        title: Row(
+                            children: <Widget>[
+                                Expanded(child: Text(file.name)),
+                                file.isDir? Text('${file.num}项',style: TextStyle(color: Colors.grey)):Container()
+                            ],
+                        ),
+                        subtitle: file.isDir? null:Text('11111111  132kb', style: TextStyle(fontSize: 12.0)),
+                        trailing: file.isDir ? Icon(Icons.chevron_right):null,
+                    ),
+                    Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 14.0),
+                        child: Divider(height: 1.0),
+                    )
+                ],
+            ),
+            onTap: () {
+                if (file.isDir) {
+                    position.insert(position.length, controller.offset);
+                    //initDirectory(file.path);
+                    appTitle = sDCardDir = file.name;
+                    print(sDCardDir);
+                    _refresh();
+                    jumpToPosition(true);
+                }
+                else {
+                    //openFile(file.path);
+                }
+            
+            },
+        );
+    }
+
+    void jumpToPosition(bool isEnter) {
+        if (isEnter) {
+            controller.jumpTo(0.0);
+        }
+        else {
+            controller.jumpTo(position[position.length - 1]);
+            position.removeLast();
+        }
+    }
+    
 }
 
 class _SearchDemoSearchDelegate extends SearchDelegate<int> {
@@ -189,5 +341,65 @@ class _SuggestionList extends StatelessWidget {
                 );
             },
         );
+    }
+}
+
+class File {
+    File(this.isDir,this.name,this.num,this.ext);
+    
+    bool isDir;
+    String name;
+    int num;
+    String ext;
+}
+
+selectIcon(File file) {
+    try {
+        String iconImg;
+        if (file.isDir) {
+            return 'assets/images/folder.png';
+        }
+        switch (file.ext) {
+            case 'ppt':
+            case 'pptx':
+                iconImg = 'assets/images/ppt.png';
+                break;
+            case 'doc':
+            case 'docx':
+                iconImg = 'assets/images/word.png';
+                break;
+            case 'xls':
+            case 'xlsx':
+                iconImg = 'assets/images/excel.png';
+                break;
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+                iconImg = 'assets/images/image.png';
+                break;
+            case 'txt':
+                iconImg = 'assets/images/txt.png';
+                break;
+            case 'mp3':
+                iconImg = 'assets/images/mp3.png';
+                break;
+            case 'mp4':
+                iconImg = 'assets/images/video.png';
+                break;
+            case 'rar':
+            case 'zip':
+                iconImg = 'assets/images/zip.png';
+                break;
+            case 'psd':
+                iconImg = 'assets/images/psd.png';
+                break;
+            default:
+                iconImg = 'assets/images/file.png';
+                break;
+        }
+        return iconImg;
+    }
+    catch (e) {
+        return 'assets/images/unknown.png';
     }
 }

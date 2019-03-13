@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:flutter/services.dart';
 import 'oss.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'event_bus.dart';
+import 'click_effect.dart';
 
 class FileView extends StatefulWidget {
     @override
@@ -10,18 +12,16 @@ class FileView extends StatefulWidget {
 
 class _FileViewState extends State<FileView> with AutomaticKeepAliveClientMixin {
     
-    List<File> files = [
-        File(true, 'Music', 12, 'png'),
-        File(true, 'Podcasts', 12, 'png'),
-        File(false, 'teusic.txt', 12, 'txt'),
-        File(false, 'Music.png', 12, 'png'),
-    ];
+    GlobalKey<EasyRefreshState> _easyRefreshKey = new GlobalKey<EasyRefreshState>();
+    GlobalKey<RefreshHeaderState> _headerKey = new GlobalKey<RefreshHeaderState>();
+    GlobalKey<RefreshFooterState> _footerKey = new GlobalKey<RefreshFooterState>();
+    
+    List<File> files = [];
 
     @override
     bool get wantKeepAlive => true;
     
     MethodChannel _channel = MethodChannel('openFileChannel');
-    Directory parentDir;
     ScrollController controller = ScrollController();
     int count = 0; // 记录当前文件夹中以 . 开头的文件和文件夹
     String sDCardDir;
@@ -31,28 +31,41 @@ class _FileViewState extends State<FileView> with AutomaticKeepAliveClientMixin 
     void initState() {
         // TODO: implement initState
         super.initState();
-        _initFiles();
+        bus.on("uploads", (arg) {
+            _uploads();
+        });
     }
     
-    _initFiles() async {
+    _uploads() async {
+        Map map = await Oss().upload();
+        print(map);
+        _easyRefreshKey.currentState.callRefresh();
+    }
+
+    Future<void> _refresh() async {
+        files.clear();
         Map result = await Oss().bucket();
-        print(result['commonPrefixes']);
-        //for (var item in files['commonPrefixes']) {
-        //
-        //}
+        for (var item in result['commonPrefixes']) {
+            files.add(File(true,item['Prefix'],10,'png'));
+        }
         for (var item in result['contents']) {
             files.add(File(false,item['Key'],0,'png'));
         }
         setState(() {});
     }
     
+    Future<void> _more() async {
+        return null;
+    }
+    
     @override
     Widget build(BuildContext context) {
         return WillPopScope(
             onWillPop: () {
-                if (parentDir.path != sDCardDir) {
+                if (null != sDCardDir) {
                     jumpToPosition(false);
-                } else {
+                }
+                else {
                     SystemNavigator.pop();
                 }
             },
@@ -67,50 +80,63 @@ class _FileViewState extends State<FileView> with AutomaticKeepAliveClientMixin 
                             style: TextStyle(color: Colors.black),
                         ),
                     ),
-                    preferredSize: Size.fromHeight(30)),
-                /*
-                appBar: AppBar(
-                    title: Text(
-                        '当前库',
-                        style: TextStyle(color: Colors.black),
-                    ),
-                    elevation: 0.4,
-                    centerTitle: true,
-                    backgroundColor: Color(0xffeeeeee),
-                    leading: parentDir?.path == sDCardDir
-                        ? Container()
-                        : IconButton(
-                        icon: Icon(
-                            Icons.chevron_left,
-                            color: Colors.black,
-                        ),
-                        onPressed: () {
-                            if (parentDir.path != sDCardDir) {
-                                jumpToPosition(false);
-                            } else {
-                                Navigator.pop(context);
-                            }
-                        }),
+                    preferredSize: Size.fromHeight(30)
                 ),
-                */
                 backgroundColor: Color(0xfff3f3f3),
-                body: Scrollbar(
-                    child: ListView.builder(
-                        controller: controller,
-                        itemCount: files.length != 0 ? files.length : 1,
-                        itemBuilder: (BuildContext context, int index) {
-                            if (files.length != 0)
-                                return buildListViewItem(files[index]);
-                            else
-                                return Padding(
-                                    padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 2 - MediaQuery.of(context).padding.top - 56.0),
-                                    child: Center(
-                                        child: Text('The folder is empty'),
-                                    ),
-                                );
-                        },
+                body: Center(
+                    child: EasyRefresh(
+                        key: _easyRefreshKey,
+                        firstRefresh: true,
+                        behavior: ScrollOverBehavior(),
+                        refreshHeader: ClassicsHeader(
+                            key: _headerKey,
+                            refreshText: '下拉刷新',
+                            refreshReadyText: '释放加载',
+                            refreshingText: "正在刷新...",
+                            refreshedText: "刷新结束",
+                            moreInfo: "更新于 %T",
+                            bgColor: Colors.transparent,
+                            textColor: Colors.black87,
+                            moreInfoColor: Colors.black54,
+                            showMore: true,
+                        ),
+                        refreshFooter: ClassicsFooter(
+                            key: _footerKey,
+                            loadText: "上拉加载",
+                            loadReadyText: "释放加载",
+                            loadingText: "正在加载",
+                            loadedText: "加载结束",
+                            noMoreText: "没有更多数据",
+                            moreInfo: "更新于 %T",
+                            bgColor: Colors.transparent,
+                            textColor: Colors.black87,
+                            moreInfoColor: Colors.black54,
+                            showMore: true,
+                        ),
+                        child:ListView.builder(
+                            controller: controller,
+                            itemCount: files.length != 0 ? files.length : 1,
+                            itemBuilder: (BuildContext context, int index) {
+                                if (files.length != 0) {
+                                    return buildListViewItem(files[index]);
+                                }
+                                else {
+                                    return Padding(
+                                        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 2 - MediaQuery
+                                            .of(context).padding.top - 56.0),
+                                        child: Center(
+                                            child: Text('The folder is empty'),
+                                        ),
+                                    );
+                                }
+                            },
+                        ),
+                        onRefresh:() => _refresh(),
+                        loadMore:() => _more(),
                     ),
-                )),
+                )
+            ),
+            
         );
     }
     
@@ -123,33 +149,21 @@ class _FileViewState extends State<FileView> with AutomaticKeepAliveClientMixin 
                         title: Row(
                             children: <Widget>[
                                 Expanded(child: Text(file.name)),
-                                !file.isDir
-                                    ? Container()
-                                    : Text(
-                                    '${file.num}项',
-                                    style: TextStyle(color: Colors.grey),
-                                )
+                                !file.isDir? Container(): Text('${file.num}项',style: TextStyle(color: Colors.grey))
                             ],
                         ),
-                        subtitle: !file.isDir
-                            ? Text(
-                            '11111111  132kb',
-                            style: TextStyle(fontSize: 12.0),
-                        )
-                            : null,
+                        subtitle: !file.isDir? Text('11111111  132kb', style: TextStyle(fontSize: 12.0)): null,
                         trailing: !file.isDir ? null : Icon(Icons.chevron_right),
                     ),
                     Padding(
                         padding: EdgeInsets.symmetric(horizontal: 14.0),
-                        child: Divider(
-                            height: 1.0,
-                        ),
+                        child: Divider(height: 1.0),
                     )
                 ],
             ),
             onTap: () {
                 if (file.isDir) {
-                    //position.insert(position.length, controller.offset);
+                    position.insert(position.length, controller.offset);
                     //initDirectory(file.path);
                     jumpToPosition(true);
                 }
@@ -162,23 +176,22 @@ class _FileViewState extends State<FileView> with AutomaticKeepAliveClientMixin 
     }
     
     void jumpToPosition(bool isEnter) {
-        if (isEnter)
+        print(isEnter);isEnter=false;
+        if (isEnter) {
             controller.jumpTo(0.0);
+        }
         else {
             controller.jumpTo(position[position.length - 1]);
             position.removeLast();
         }
     }
     
-    openFile(String path) {
-        final Map<String, dynamic> args = <String, dynamic>{'path': path};
-        _channel.invokeMethod('openFile', args);
-    }
-    
 }
 
+/// A custom widget that lets clicks have the effect of changing the background color
+
+
 class File {
-    
     File(this.isDir,this.name,this.num,this.ext);
     
     bool isDir;
@@ -235,71 +248,5 @@ selectIcon(File file) {
     }
     catch (e) {
         return 'assets/images/unknown.png';
-    }
-}
-
-/// A custom widget that lets clicks have the effect of changing the background color
-class ClickEffect extends StatefulWidget {
-    ClickEffect(
-        {Key key,
-            this.margin,
-            this.padding,
-            this.normalColor: Colors.transparent,
-            this.selectColor: const Color(0xffcccccc),
-            @required this.onTap,
-            @required this.child})
-        : super(key: key);
-    
-    final EdgeInsetsGeometry margin;
-    
-    final EdgeInsetsGeometry padding;
-    
-    final Color normalColor;
-    
-    final Color selectColor;
-    
-    final GestureTapCallback onTap;
-    
-    final Widget child;
-    
-    @override
-    _ClickEffectState createState() => _ClickEffectState();
-}
-
-class _ClickEffectState extends State<ClickEffect> {
-    Color color;
-    
-    @override
-    void initState() {
-        super.initState();
-        color = widget.normalColor;
-    }
-    
-    @override
-    Widget build(BuildContext context) {
-        return GestureDetector(
-            child: Container(
-                margin: widget.margin,
-                padding: widget.padding,
-                child: widget.child,
-                color: color,
-            ),
-            onTap: widget.onTap,
-            onTapDown: (_) {
-                setState(() {
-                    color = widget.selectColor;
-                });
-            },
-            onTapUp: (_) {
-                setState(() {
-                    color = widget.normalColor;
-                });
-            },
-            onTapCancel: () {
-                setState(() {
-                    color = widget.normalColor;
-                });
-            },
-        );
     }
 }
