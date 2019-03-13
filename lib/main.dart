@@ -4,6 +4,7 @@ import 'event_bus.dart';
 import 'colors.dart';
 import 'session.dart';
 import 'sqlite.dart';
+import 'drawer_demo.dart';
 
 void main() async {
   setCustomErrorPage();
@@ -47,12 +48,12 @@ class _MyAppState extends State<MyApp> {
     
     return MaterialApp(
         title: '图片盒子',
-        theme: ThemeData.light().copyWith(
+        theme: ThemeData(//.light().copyWith
             primaryColor: _themeColor,
             accentColor: _themeColor,
             indicatorColor: Colors.white,
         ),
-        home: NavigationPage(),
+        home: DrawerDemo(),
     );
   }
   
