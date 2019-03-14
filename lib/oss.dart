@@ -26,11 +26,10 @@ class Oss {
 	Future<Map> buckets() async{
 		//创建dio对象
 		Dio dio = new Dio();
-		Map returns = {};
+		Map returns = Map();
 		try {
-			
 			Response response = await dio.get(
-				domain,
+				"https://$domain",
 				options: headerSign()
 			);
 			Map map = xml2map(response.data);
@@ -71,7 +70,16 @@ class Oss {
 			returns['code'] = 0;
 
 			returns['contents'] = map['ListBucketResult']['Contents']??[];
+			if(returns['contents'] is Map) {
+				returns['contents'] = [returns['contents']];
+			}
 			returns['commonPrefixes'] = map['ListBucketResult']['CommonPrefixes']??[];
+			if(returns['commonPrefixes'] is Map) {
+				returns['commonPrefixes'] = [returns['commonPrefixes']];
+			}
+			returns['marker'] =  map['ListBucketResult']['Marker'];
+			returns['prefix'] =  map['ListBucketResult']['Prefix'];
+			returns['more'] =  map['ListBucketResult']['IsTruncated'];
 			return returns;
 		}
 		on DioError catch(e) {

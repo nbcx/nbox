@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'search_result_view.dart';
 import 'bucket_view.dart';
-import 'event_bus.dart';
 import 'click_effect.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'oss.dart';
+import 'drawer_view.dart';
+import 'package:path/path.dart' as path;
 
 class FileManagePage extends StatefulWidget {
 
@@ -24,83 +25,93 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     int _lastIntegerSelected;
 
-    String appTitle = '文件夹';
-    String sDCardDir;
+    Oss oss = new Oss();
+    String prefix,marker;
     List<double> position = [];
     List<File> files = [];
+    List<String> prefixS = [];
     
     @override
     bool get wantKeepAlive => true;
+
+    //@override
+    //void initState() {
+    //    super.initState();
+    //    print("prefixS "+prefixS.join('/'));
+    //}
+
+    IconData _backIcon() {
+        if(Theme.of(context).platform == TargetPlatform.iOS) {
+            return Icons.arrow_back_ios;
+        }
+        else {
+            return Icons.arrow_back;
+        }
+    }
     
     _uploads() async {
-        Map map = await Oss().upload();
+        Map map = await oss.upload();
         print(map);
         _easyRefreshKey.currentState.callRefresh();
     }
 
-
-    _pull([String delimiter='/']) async {
-        Map result = await Oss().bucket(prefix: 'test/');
+    _pull({String prefix,bool clear=true,String delimiter='/',int maxKeys=100,String marker}) async {
+        Map result = await oss.bucket(prefix:prefix,delimiter:delimiter,maxKeys:maxKeys,marker:marker);
+        if(clear) files.clear();
         for (var item in result['commonPrefixes']) {
-            files.add(File(true,item['Prefix'],10,'png'));
+            files.add(File(true,item['Prefix'],prefix));
         }
+        print(result);
         for (var item in result['contents']) {
-            files.add(File(false,item['Key'],0,'png'));
+            if(item['Size'] == '0') {
+                continue;
+            }
+            files.add(File(false,item['Key'],prefix,size: item['Size'],date:item['LastModified']));
         }
         setState(() {});
     }
 
-    Future<void> _refresh() async {
-        files.clear();
-        _pull('test');
-    }
-
-    Future<void> _more() async {
-        return null;
-    }
-    
     @override
     Widget build(BuildContext context) {
         return Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
-                leading: null == sDCardDir?null : IconButton(
-                    icon: Icon(
-                        Icons.chevron_left,
-                        color: Colors.black,
-                    ),
+                leading: null == prefix?null : IconButton(
+                    icon: Icon(_backIcon()),
                     onPressed: () {
-                        if (null != sDCardDir) {
-                            appTitle = '文件夹';
-                            sDCardDir = null;
-                            _refresh();
+                        prefixS.removeLast();
+                        if (prefixS.isEmpty) {
+							prefix = null;
+                            _pull();
                             jumpToPosition(false);
                         }
                         else {
-                            Navigator.pop(context);
+                            prefix = prefixS.join('/')+"/";
+                            _pull(prefix:prefix);
+                            jumpToPosition(true);
                         }
                     }),
-                title: Text(appTitle),
+                title: Text('网盘盒子'),
                 actions: <Widget>[
                     IconButton(
-                      tooltip: 'Search',
-                      icon: const Icon(Icons.search),
-                      onPressed: () async {
-                            final int selected = await showSearch<int>(
-                                context: context,
-                                delegate: _delegate,
-                            );
-                            if (selected != null && selected != _lastIntegerSelected) {
-                                setState(() {
-                                    _lastIntegerSelected = selected;
-                                });
-                            }
-                      },
+						tooltip: 'Search',
+						icon: const Icon(Icons.search),
+						onPressed: () async {
+							final int selected = await showSearch<int>(
+								context: context,
+								delegate: _delegate,
+							);
+							if (selected != null && selected != _lastIntegerSelected) {
+								setState(() {
+									_lastIntegerSelected = selected;
+								});
+							}
+						},
                     ),
                     IconButton(
                         icon: Icon(Icons.add),
                         tooltip: 'Upload Files',
-                        onPressed: (){
+                        onPressed:() {
                             _uploads();
                         }
                     ),
@@ -120,6 +131,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
 
                 ],
             ),
+            drawer: DrawerView(),
             body: Scaffold(
                 appBar: PreferredSize(
                     child: AppBar(
@@ -127,8 +139,8 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                         centerTitle: false,
                         backgroundColor: Color(0xffeeeeee),
                         title: Text(
-                            'oss',
-                            style: TextStyle(color: Colors.black),
+                            "${oss.bucketName}://"+(prefix==null?"":"$prefix"),
+                            style: TextStyle(color: Colors.grey),
                         ),
                     ),
                     preferredSize: Size.fromHeight(30)
@@ -173,8 +185,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                                 }
                                 else {
                                     return Padding(
-                                        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 2 - MediaQuery
-                                            .of(context).padding.top - 56.0),
+                                        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 2 - MediaQuery.of(context).padding.top - 56.0),
                                         child: Center(
                                             child: Text('The folder is empty'),
                                         ),
@@ -182,8 +193,8 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                                 }
                             },
                         ),
-                        onRefresh:() => _refresh(),
-                        loadMore:() => _more(),
+                        onRefresh:() => _pull(prefix: prefix),
+                        loadMore:() => _pull(clear:false,prefix: prefix,marker: marker),
                     ),
                 )
             ),//SearchResultView(),
@@ -195,14 +206,14 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
             child: Column(
                 children: <Widget>[
                     ListTile(
-                        leading: Image.asset(selectIcon(file)),
+                        leading: Image.asset(fileIcon(file)),
                         title: Row(
                             children: <Widget>[
                                 Expanded(child: Text(file.name)),
-                                file.isDir? Text('${file.num}项',style: TextStyle(color: Colors.grey)):Container()
+                                //file.isDir? Text('${file.num}项',style: TextStyle(color: Colors.grey)):Container()
                             ],
                         ),
-                        subtitle: file.isDir? null:Text('11111111  132kb', style: TextStyle(fontSize: 12.0)),
+                        subtitle: file.isDir ? null:Text('${file.dateFmt()}  ${file.sizeFmt()}', style: TextStyle(fontSize: 12.0)),
                         trailing: file.isDir ? Icon(Icons.chevron_right):null,
                     ),
                     Padding(
@@ -214,16 +225,15 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
             onTap: () {
                 if (file.isDir) {
                     position.insert(position.length, controller.offset);
-                    //initDirectory(file.path);
-                    appTitle = sDCardDir = file.name;
-                    print(sDCardDir);
-                    _refresh();
+                    prefixS.add(file.name);
+                    prefix = prefixS.join('/')+"/";
+                    print("prefix $prefix");
+                    _pull(prefix:prefix);
                     jumpToPosition(true);
                 }
                 else {
                     //openFile(file.path);
                 }
-            
             },
         );
     }
@@ -242,8 +252,8 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
 
 class _SearchDemoSearchDelegate extends SearchDelegate<int> {
   
-  final List<int> _data = List<int>.generate(100001, (int i) => i).reversed.toList();
-  final List<int> _history = <int>[42607, 85604, 66374, 44, 174];
+  final List<String> _data = ['hello'];
+  final List<String> _history = <String>['美女', '明星', '动物', '卡通'];
 
   @override
   Widget buildLeading(BuildContext context) {
@@ -262,53 +272,50 @@ class _SearchDemoSearchDelegate extends SearchDelegate<int> {
   @override
   Widget buildSuggestions(BuildContext context) {
 
-    final Iterable<int> suggestions = query.isEmpty
-        ? _history
-        : _data.where((int i) => '$i'.startsWith(query));
-
-    return _SuggestionList(
-        query: query,
-        suggestions: suggestions.map<String>((int i) => '$i').toList(),
-        onSelected: (String suggestion) {
-            query = suggestion;
-            showResults(context);
-        },
-    );
+		//final Iterable<int> suggestions = query.isEmpty ? _history : _data.where((String i) => '$i'.startsWith(query));
+		
+		return _SuggestionList(
+			query: query,
+			suggestions: _history,
+			onSelected: (String suggestion) {
+				query = suggestion;
+				showResults(context);
+			},
+		);
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    if (query == null) {
-        return Center(
-            child: Text('"$query"\n is not a valid integer between 0 and 100,000.\nTry again.',
-              textAlign: TextAlign.center,
-            ),
-        );
-    }
-    return SearchResultView();//search: query
-    
+		if (query == null) {
+			return Center(
+				child: Text('"$query"\n is not a valid integer between 0 and 100,000.\nTry again.',
+				  textAlign: TextAlign.center,
+				),
+			);
+		}
+		return SearchResultView();//search: query
   }
 
   @override
   List<Widget> buildActions(BuildContext context) {
-    return <Widget>[
-      query.isEmpty
-          ? IconButton(
-              tooltip: 'Voice Search',
-              icon: const Icon(Icons.mic),
-              onPressed: () {
-                query = 'TODO: implement voice input';
-              },
-            )
-          : IconButton(
-              tooltip: 'Clear',
-              icon: const Icon(Icons.clear),
-              onPressed: () {
-                  query = '';
-                  showSuggestions(context);
-              },
-            ),
-    ];
+		return <Widget>[
+		  	query.isEmpty
+			  ? IconButton(
+				  tooltip: 'Voice Search',
+				  icon: const Icon(Icons.mic),
+				  onPressed: () {
+					query = 'TODO: implement voice input';
+				  },
+				)
+			  : IconButton(
+				  tooltip: 'Clear',
+				  icon: const Icon(Icons.clear),
+				  onPressed: () {
+					  query = '';
+					  showSuggestions(context);
+				  },
+				),
+		];
   }
 }
 
@@ -330,12 +337,12 @@ class _SuggestionList extends StatelessWidget {
                     leading: query.isEmpty ? const Icon(Icons.history) : const Icon(null),
                     title: RichText(
                       text: TextSpan(
-                        text: suggestion.substring(0, query.length),
+                        text:query,
                         style: theme.textTheme.subhead.copyWith(fontWeight: FontWeight.bold),
                         children: <TextSpan>[
                           TextSpan(
-                            text: suggestion.substring(query.length),
-                            style: theme.textTheme.subhead,
+								text: suggestion.substring(query.length),
+								style: theme.textTheme.subhead,
                           ),
                         ],
                       ),
@@ -350,52 +357,80 @@ class _SuggestionList extends StatelessWidget {
 }
 
 class File {
-    File(this.isDir,this.name,this.num,this.ext);
-    
+    String prefix;
     bool isDir;
     String name;
-    int num;
-    String ext;
+    //String ext = 'png';
+    String size;
+    String date;
+    
+    File(this.isDir,this.name,this.prefix,{this.size,this.date}) {
+        if(prefix == null) {
+            if(isDir) name = name.replaceAll('/', '');
+            return;
+        }
+        name = name.replaceFirst(prefix, '');
+        if(isDir) name = name.replaceAll('/', '');
+    }
+    
+    String ext() {
+        return path.extension(name);
+    }
+    
+    String sizeFmt() {
+        String unit = 'kb';
+        double s = double.parse(size);
+        s = s/1024;
+        if(s > 1024) {
+            s = s/1024;
+            unit = 'mb';
+        }
+        return '${s.toStringAsFixed(2)} $unit';
+    }
+    
+    String dateFmt() {
+        return '2019-12-15 8:00';
+    }
 }
 
-selectIcon(File file) {
+fileIcon(File file) {
     try {
         String iconImg;
         if (file.isDir) {
             return 'assets/images/folder.png';
         }
-        switch (file.ext) {
-            case 'ppt':
-            case 'pptx':
+        switch (file.ext()) {
+            case '.ppt':
+            case '.pptx':
                 iconImg = 'assets/images/ppt.png';
                 break;
-            case 'doc':
-            case 'docx':
+            case '.doc':
+            case '.docx':
                 iconImg = 'assets/images/word.png';
                 break;
-            case 'xls':
-            case 'xlsx':
+            case '.xls':
+            case '.xlsx':
                 iconImg = 'assets/images/excel.png';
                 break;
-            case 'jpg':
-            case 'jpeg':
-            case 'png':
+            case '.jpg':
+            case '.jpeg':
+            case '.png':
                 iconImg = 'assets/images/image.png';
                 break;
-            case 'txt':
+            case '.txt':
                 iconImg = 'assets/images/txt.png';
                 break;
-            case 'mp3':
+            case '.mp3':
                 iconImg = 'assets/images/mp3.png';
                 break;
-            case 'mp4':
+            case '.mp4':
                 iconImg = 'assets/images/video.png';
                 break;
-            case 'rar':
-            case 'zip':
+            case '.rar':
+            case '.zip':
                 iconImg = 'assets/images/zip.png';
                 break;
-            case 'psd':
+            case '.psd':
                 iconImg = 'assets/images/psd.png';
                 break;
             default:

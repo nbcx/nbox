@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'navigation_page.dart';
 import 'event_bus.dart';
 import 'colors.dart';
 import 'session.dart';
 import 'sqlite.dart';
-import 'drawer_demo.dart';
+import 'file_manage_page.dart';
 
 void main() async {
   setCustomErrorPage();
@@ -53,7 +52,7 @@ class _MyAppState extends State<MyApp> {
             accentColor: _themeColor,
             indicatorColor: Colors.white,
         ),
-        home: DrawerDemo(),
+        home: FileManagePage(),
     );
   }
   
