@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'oss.dart';
+import 'event_bus.dart';
 
 /// 基本使用页面
 class BucketView extends StatefulWidget {
+
+	final Oss oss;
+
+	BucketView(this.oss);
 	
 	@override
 	_BucketViewState createState() => _BucketViewState();
@@ -13,17 +18,15 @@ class _BucketViewState extends State<BucketView> with AutomaticKeepAliveClientMi
 	
 	@override
 	bool get wantKeepAlive => true;
-	
-	
+
 	@override
 	void initState() {
-		// TODO: implement initState
 		super.initState();
 		_initBucket();
 	}
 	
 	_initBucket() async{
-		Map result = await Oss().buckets();
+		Map result = await widget.oss.buckets();
 		print(result);
 		setState(() {
 			data.addAll(result['bucket']);
@@ -47,17 +50,32 @@ class _BucketViewState extends State<BucketView> with AutomaticKeepAliveClientMi
 		if(data.length == 0) {
 			return [];
 		}
+		//_MaterialListType _itemType = _MaterialListType.threeLine;
 		Iterable<Widget> listTiles = data.map<Widget>((item) {
 			return MergeSemantics(
 				child: ListTile(
 					title: Text(item['Name']),
-					subtitle:Text(item['ExtranetEndpoint'])
+					subtitle:Text(item['ExtranetEndpoint']),
+					trailing: Radio<String>(
+						value: item['Name'],
+						groupValue: widget.oss.bucketName,
+						//onChanged: changeItem,
+					),
+					onTap: ()=>changeBucket(item['Name'],item['ExtranetEndpoint']),
 				),
 			);
 		});
 		listTiles = ListTile.divideTiles(context: context, tiles: listTiles);
 		
 		return listTiles.toList();
+	}
+
+	void changeBucket(String name,String endpoint) {
+		bus.emit('changeBucket',{
+			'name':name,
+			'endpoint':endpoint
+		});
+		Navigator.pop(context);
 	}
 	
 }

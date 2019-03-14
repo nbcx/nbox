@@ -7,6 +7,7 @@ import 'oss.dart';
 import 'drawer_view.dart';
 import 'package:path/path.dart' as path;
 import 'photo_gallery_page.dart';
+import 'event_bus.dart';
 
 class FileManagePage extends StatefulWidget {
 
@@ -22,7 +23,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
 
     ScrollController controller = ScrollController();
     
-    final _SearchDemoSearchDelegate _delegate = _SearchDemoSearchDelegate();
+    final SearchControllerDelegate _delegate = SearchControllerDelegate();
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     int _lastIntegerSelected;
 
@@ -35,11 +36,14 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
     @override
     bool get wantKeepAlive => true;
 
-    //@override
-    //void initState() {
-    //    super.initState();
-    //    print("prefixS "+prefixS.join('/'));
-    //}
+    @override
+    void initState() {
+        super.initState();
+        bus.on('changeBucket', (args){
+            oss.changeBucket(args);
+            _easyRefreshKey.currentState.callRefresh();
+        });
+    }
 
     IconData _backIcon() {
         if(Theme.of(context).platform == TargetPlatform.iOS) {
@@ -126,7 +130,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                         tooltip: 'Show Bucket',
                         onPressed: (){
                             showModalBottomSheet<void>(context: context, builder: (BuildContext context) {
-                                return BucketView();
+                                return BucketView(oss);
                             });
                         }
                     ),
@@ -153,7 +157,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                         key: _easyRefreshKey,
                         firstRefresh: true,
                         behavior: ScrollOverBehavior(),
-                        refreshHeader: ClassicsHeader(
+                        refreshHeader:ClassicsHeader(
                             key: _headerKey,
                             refreshText: '下拉刷新',
                             refreshReadyText: '释放加载',
@@ -224,24 +228,25 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                     )
                 ],
             ),
-            onTap: () {
-                if (file.isDir) {
-                    position.insert(position.length, controller.offset);
-                    prefixS.add(file.name);
-                    prefix = prefixS.join('/')+"/";
-                    print("prefix $prefix");
-                    _pull(prefix:prefix);
-                    jumpToPosition(true);
-                }
-                else {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => new PhotoGalleryPage([
-                            'https://picbox.oss-cn-beijing.aliyuncs.com/0I3145F5-2.jpg',
-                            'https://picbox.oss-cn-beijing.aliyuncs.com/1080-1.jpg'
-                        ]))
-                    );
-                }
-            },
+            onTap: () => _fileTap(file),
+        );
+    }
+
+    void _fileTap(file) {
+        if (file.isDir) {
+            position.insert(position.length, controller.offset);
+            prefixS.add(file.name);
+            prefix = prefixS.join('/')+"/";
+            print("prefix $prefix");
+            _pull(prefix:prefix);
+            jumpToPosition(true);
+            return;
+        }
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => new PhotoGalleryPage([
+                'https://picbox.oss-cn-beijing.aliyuncs.com/0I3145F5-2.jpg',
+                'https://picbox.oss-cn-beijing.aliyuncs.com/1080-1.jpg'
+            ]))
         );
     }
 
@@ -254,112 +259,56 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
             position.removeLast();
         }
     }
-    
-}
 
-class _SearchDemoSearchDelegate extends SearchDelegate<int> {
-  
-  final List<String> _data = ['hello'];
-  final List<String> _history = <String>['美女', '明星', '动物', '卡通'];
-
-  @override
-  Widget buildLeading(BuildContext context) {
-      return IconButton(
-          tooltip: 'Back',
-          icon: AnimatedIcon(
-              icon: AnimatedIcons.menu_arrow,
-              progress: transitionAnimation,
-          ),
-          onPressed: () {
-              close(context, null);
-          },
-      );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-
-		//final Iterable<int> suggestions = query.isEmpty ? _history : _data.where((String i) => '$i'.startsWith(query));
-		
-		return _SuggestionList(
-			query: query,
-			suggestions: _history,
-			onSelected: (String suggestion) {
-				query = suggestion;
-				showResults(context);
-			},
-		);
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-		if (query == null) {
-			return Center(
-				child: Text('"$query"\n is not a valid integer between 0 and 100,000.\nTry again.',
-				  textAlign: TextAlign.center,
-				),
-			);
-		}
-		return SearchResultView();//search: query
-  }
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-		return <Widget>[
-		  	query.isEmpty
-			  ? IconButton(
-				  tooltip: 'Voice Search',
-				  icon: const Icon(Icons.mic),
-				  onPressed: () {
-					query = 'TODO: implement voice input';
-				  },
-				)
-			  : IconButton(
-				  tooltip: 'Clear',
-				  icon: const Icon(Icons.clear),
-				  onPressed: () {
-					  query = '';
-					  showSuggestions(context);
-				  },
-				),
-		];
-  }
-}
-
-class _SuggestionList extends StatelessWidget {
-    const _SuggestionList({this.suggestions, this.query, this.onSelected});
-  
-    final List<String> suggestions;
-    final String query;
-    final ValueChanged<String> onSelected;
-  
-    @override
-    Widget build(BuildContext context) {
-        final ThemeData theme = Theme.of(context);
-        return ListView.builder(
-            itemCount: suggestions.length,
-            itemBuilder: (BuildContext context, int i) {
-                final String suggestion = suggestions[i];
-                return ListTile(
-                    leading: query.isEmpty ? const Icon(Icons.history) : const Icon(null),
-                    title: RichText(
-                      text: TextSpan(
-                        text:query,
-                        style: theme.textTheme.subhead.copyWith(fontWeight: FontWeight.bold),
-                        children: <TextSpan>[
-                          TextSpan(
-								text: suggestion.substring(query.length),
-								style: theme.textTheme.subhead,
-                          ),
-                        ],
-                      ),
-                    ),
-                    onTap: () {
-                        onSelected(suggestion);
-                    },
-                );
-            },
-        );
+    String fileIcon(File file) {
+        try {
+            String iconImg;
+            if (file.isDir) {
+                return 'assets/images/folder.png';
+            }
+            switch (file.ext()) {
+                case '.ppt':
+                case '.pptx':
+                    iconImg = 'assets/images/ppt.png';
+                    break;
+                case '.doc':
+                case '.docx':
+                    iconImg = 'assets/images/word.png';
+                    break;
+                case '.xls':
+                case '.xlsx':
+                    iconImg = 'assets/images/excel.png';
+                    break;
+                case '.jpg':
+                case '.jpeg':
+                case '.png':
+                    iconImg = 'assets/images/image.png';
+                    break;
+                case '.txt':
+                    iconImg = 'assets/images/txt.png';
+                    break;
+                case '.mp3':
+                    iconImg = 'assets/images/mp3.png';
+                    break;
+                case '.mp4':
+                    iconImg = 'assets/images/video.png';
+                    break;
+                case '.rar':
+                case '.zip':
+                    iconImg = 'assets/images/zip.png';
+                    break;
+                case '.psd':
+                    iconImg = 'assets/images/psd.png';
+                    break;
+                default:
+                    iconImg = 'assets/images/file.png';
+                    break;
+            }
+            return iconImg;
+        }
+        catch (e) {
+            return 'assets/images/unknown.png';
+        }
     }
 }
 
@@ -400,53 +349,3 @@ class File {
     }
 }
 
-fileIcon(File file) {
-    try {
-        String iconImg;
-        if (file.isDir) {
-            return 'assets/images/folder.png';
-        }
-        switch (file.ext()) {
-            case '.ppt':
-            case '.pptx':
-                iconImg = 'assets/images/ppt.png';
-                break;
-            case '.doc':
-            case '.docx':
-                iconImg = 'assets/images/word.png';
-                break;
-            case '.xls':
-            case '.xlsx':
-                iconImg = 'assets/images/excel.png';
-                break;
-            case '.jpg':
-            case '.jpeg':
-            case '.png':
-                iconImg = 'assets/images/image.png';
-                break;
-            case '.txt':
-                iconImg = 'assets/images/txt.png';
-                break;
-            case '.mp3':
-                iconImg = 'assets/images/mp3.png';
-                break;
-            case '.mp4':
-                iconImg = 'assets/images/video.png';
-                break;
-            case '.rar':
-            case '.zip':
-                iconImg = 'assets/images/zip.png';
-                break;
-            case '.psd':
-                iconImg = 'assets/images/psd.png';
-                break;
-            default:
-                iconImg = 'assets/images/file.png';
-                break;
-        }
-        return iconImg;
-    }
-    catch (e) {
-        return 'assets/images/unknown.png';
-    }
-}

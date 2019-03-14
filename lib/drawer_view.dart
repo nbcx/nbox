@@ -12,26 +12,25 @@ class DrawerView extends StatefulWidget {
 }
 
 class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
-	final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-	
+
 	static const List<Map> _drawerContents = <Map>[
 		{
-			'icon':'A',
+			'icon':Icons.settings,
 			'name':'系统设置',
 			'action':'system'
 		},
 		{
-			'icon':'W',
+			'icon':Icons.account_box,
 			'name':'网盘账户管理',
 			'action':'cloud'
 		},
 		{
-			'icon':'Z',
+			'icon':Icons.turned_in_not,
 			'name':'关于',
 			'action':'video'
 		},
 		{
-			'icon':'B',
+			'icon':Icons.new_releases,
 			'name':'版本更新',
 			'action':'test'
 		}
@@ -68,7 +67,6 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 		_controller.dispose();
 		super.dispose();
 	}
-	
 	
 	void _showNotImplementedMessage(String action) {
 		Navigator.pop(context); // Dismiss the drawer.
@@ -134,7 +132,9 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 													crossAxisAlignment: CrossAxisAlignment.stretch,
 													children: _drawerContents.map<Widget>((Map item) {
 														return ListTile(
-															leading: CircleAvatar(child: Text(item['icon'])),
+															leading: IconButton(
+																icon: Icon(item['icon']),
+															),//CircleAvatar(child: Text(item['icon'])),
 															title: Text(item['name']),
 															onTap: ()=>_showNotImplementedMessage(item['action']),
 														);
@@ -174,23 +174,5 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 			),
 		);
 	}
-	
-	void _onOtherAccountsTap(BuildContext context) {
-		showDialog<void>(
-			context: context,
-			builder: (BuildContext context) {
-				return AlertDialog(
-					title: const Text('Account switching not implemented.'),
-					actions: <Widget>[
-						FlatButton(
-							child: const Text('OK'),
-							onPressed: () {
-								Navigator.pop(context);
-							},
-						),
-					],
-				);
-			},
-		);
-	}
+
 }

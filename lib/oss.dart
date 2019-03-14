@@ -21,6 +21,11 @@ class Oss {
 		print("domain $domain");
 		print("-------------------------------------");
 	}
+
+	changeBucket(Map bucket) {
+		bucketName = bucket['name'];
+		domain = bucket['endpoint'];
+	}
 	
 	//获取使用账号下的所有buckets
 	Future<Map> buckets() async{

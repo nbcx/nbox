@@ -3,7 +3,75 @@ import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert' show json;
 
-/// 基本使用页面
+class SearchControllerDelegate extends SearchDelegate<int> {
+
+    final List<String> _data = ['hello'];
+    final List<String> _history = <String>['美女', '明星', '动物', '卡通'];
+
+    @override
+    Widget buildLeading(BuildContext context) {
+        return IconButton(
+            tooltip: 'Back',
+            icon: AnimatedIcon(
+                icon: AnimatedIcons.menu_arrow,
+                progress: transitionAnimation,
+            ),
+            onPressed: () {
+                close(context, null);
+            },
+        );
+    }
+
+    @override
+    Widget buildSuggestions(BuildContext context) {
+
+        //final Iterable<int> suggestions = query.isEmpty ? _history : _data.where((String i) => '$i'.startsWith(query));
+
+        return _SuggestionList(
+            query: query,
+            suggestions: _history,
+            onSelected: (String suggestion) {
+                query = suggestion;
+                showResults(context);
+            },
+        );
+    }
+
+    @override
+    Widget buildResults(BuildContext context) {
+        if (query == null) {
+            return Center(
+                child: Text('"$query"\n is not a valid integer between 0 and 100,000.\nTry again.',
+                    textAlign: TextAlign.center,
+                ),
+            );
+        }
+        return SearchResultView();//search: query
+    }
+
+    @override
+    List<Widget> buildActions(BuildContext context) {
+        return <Widget>[
+            query.isEmpty
+                ? IconButton(
+                tooltip: 'Voice Search',
+                icon: const Icon(Icons.mic),
+                onPressed: () {
+                    query = 'TODO: implement voice input';
+                },
+            )
+                : IconButton(
+                tooltip: 'Clear',
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                    query = '';
+                    showSuggestions(context);
+                },
+            ),
+        ];
+    }
+}
+
 class SearchResultView extends StatefulWidget {
 
     final String search;
@@ -166,5 +234,44 @@ class _ItemState extends State<Item> {
     void dispose() {
         // TODO: implement dispose
         super.dispose();
+    }
+}
+
+
+
+class _SuggestionList extends StatelessWidget {
+    const _SuggestionList({this.suggestions, this.query, this.onSelected});
+
+    final List<String> suggestions;
+    final String query;
+    final ValueChanged<String> onSelected;
+
+    @override
+    Widget build(BuildContext context) {
+        final ThemeData theme = Theme.of(context);
+        return ListView.builder(
+            itemCount: suggestions.length,
+            itemBuilder: (BuildContext context, int i) {
+                final String suggestion = suggestions[i];
+                return ListTile(
+                    leading: query.isEmpty ? const Icon(Icons.history) : const Icon(null),
+                    title: RichText(
+                        text: TextSpan(
+                            text:query,
+                            style: theme.textTheme.subhead.copyWith(fontWeight: FontWeight.bold),
+                            children: <TextSpan>[
+                                TextSpan(
+                                    text: suggestion.substring(query.length),
+                                    style: theme.textTheme.subhead,
+                                ),
+                            ],
+                        ),
+                    ),
+                    onTap: () {
+                        onSelected(suggestion);
+                    },
+                );
+            },
+        );
     }
 }
