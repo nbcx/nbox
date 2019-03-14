@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:picbox/setting_app_page.dart';
 import 'package:picbox/cloud_page.dart';
 import 'package:picbox/login_page.dart';
+import 'package:picbox/video_page.dart';
 
 class DrawerView extends StatefulWidget {
 	
@@ -27,7 +28,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 		{
 			'icon':'Z',
 			'name':'关于',
-			'action':''
+			'action':'video'
 		},
 		{
 			'icon':'B',
@@ -80,6 +81,9 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 				break;
 			case 'cloud':
 				Navigator.of(context).push(MaterialPageRoute(builder: (context) => CloudPage()));
+				break;
+			case 'video':
+				Navigator.of(context).push(MaterialPageRoute(builder: (context) => VideoPage()));
 				break;
 			case 'test':
 				Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));

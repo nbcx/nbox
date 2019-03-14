@@ -23,9 +23,10 @@ dependencies:
     synchronized: ^1.5.3
     crypto: ^2.0.6
     image_picker: ^0.5.0+3
-    #flutter_gallery_assets: 0.1.8
     xml2json: ^3.0.3
     path_provider: ^0.4.1
+    #视频播放
+    chewie: ^0.9.6
 
 dev_dependencies:
     flutter_test:
