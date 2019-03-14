@@ -44,16 +44,15 @@ class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    
-    return MaterialApp(
-        title: '图片盒子',
-        theme: ThemeData(//.light().copyWith
-            primaryColor: _themeColor,
-            accentColor: _themeColor,
-            indicatorColor: Colors.white,
-        ),
-        home: FileManagePage(),
-    );
+        return MaterialApp(
+            title: '图片盒子',
+            theme: ThemeData(//.light().copyWith
+                primaryColor: _themeColor,
+                accentColor: _themeColor,
+                indicatorColor: Colors.white,
+            ),
+            home: FileManagePage(),
+        );
   }
   
 }
@@ -62,7 +61,7 @@ void setCustomErrorPage(){
   ErrorWidget.builder = (FlutterErrorDetails flutterErrorDetails){
         //print(flutterErrorDetails.toString());
         return Center(
-            child: Text("Flutter 走神了"),
+            child: Text("我好像错了！"),
         );
   };
 }

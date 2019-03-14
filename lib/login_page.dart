@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
         padding: const EdgeInsets.all(32.0),
         child: new Column(children: <Widget>[
           // 标题
-          const Text('图片盒子',style:const TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold)),
+          const Text('网盘盒子',style:const TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold)),
           divider,
           // 表单
           new Form(

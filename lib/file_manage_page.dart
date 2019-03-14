@@ -6,6 +6,7 @@ import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'oss.dart';
 import 'drawer_view.dart';
 import 'package:path/path.dart' as path;
+import 'photo_gallery_page.dart';
 
 class FileManagePage extends StatefulWidget {
 
@@ -66,6 +67,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
             if(item['Size'] == '0') {
                 continue;
             }
+            print(item);
             files.add(File(false,item['Key'],prefix,size: item['Size'],date:item['LastModified']));
         }
         setState(() {});
@@ -232,7 +234,12 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                     jumpToPosition(true);
                 }
                 else {
-                    //openFile(file.path);
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => new PhotoGalleryPage([
+                            'https://picbox.oss-cn-beijing.aliyuncs.com/0I3145F5-2.jpg',
+                            'https://picbox.oss-cn-beijing.aliyuncs.com/1080-1.jpg'
+                        ]))
+                    );
                 }
             },
         );

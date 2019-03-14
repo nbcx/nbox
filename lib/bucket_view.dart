@@ -9,9 +9,7 @@ class BucketView extends StatefulWidget {
 }
 
 class _BucketViewState extends State<BucketView> with AutomaticKeepAliveClientMixin {
-	
 	List data = List();
-	String search = '美女';
 	
 	@override
 	bool get wantKeepAlive => true;
