@@ -95,8 +95,8 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 			child: Column(
 				children: <Widget>[
 					UserAccountsDrawerHeader(
-						accountName: Text(widget.oss.bucketName),
-						accountEmail: Text(widget.oss.accessid),
+						accountName: Text(widget.oss.name),
+						accountEmail: Text(widget.oss.key),
 						currentAccountPicture: const CircleAvatar(
 							backgroundImage: AssetImage('assets/images/nbcx.png'),
 						),

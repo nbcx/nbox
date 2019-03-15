@@ -4,27 +4,51 @@ import 'package:crypto/crypto.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'util.dart';
-import 'session.dart';
 import 'gmt.dart';
+import 'sqlite.dart';
 
 class Oss {
 
-	String accessid  = Session.getString('_key');
-	String accesskey = Session.getString('_secret');
-	String domain = Session.getString('_domain');
-	String bucketName = 'picbox';
+	String name;
+	String key;//  = Session.getString('_key');
+	String secret;// = Session.getString('_secret');
+	String endpoint;// = Session.getString('_domain');
+	String bucketName;
+
+	//私有构造函数
+	Oss._internal();
+
+	//保存单例
+	static Oss _singleton = new Oss._internal();
+
+	//工厂构造函数
+	factory Oss()=> _singleton;
 	
-	Oss() {
-		print("-------------------------------------");
-		print("accessid $accessid");
-		print("accesskey $accesskey");
-		print("domain $domain");
-		print("-------------------------------------");
+	Future<void> init() async {
+		Map oss = await db.get("select * from cloud where enable=1");
+		if(oss == null) {
+			return;
+		}
+		name = oss['name'];
+		bucketName = oss['bucket'];
+		endpoint = oss['endpoint'];
+		Map conf = json.decode(oss['config']);
+		key  = conf['key'];
+		secret  = conf['secret'];
+	}
+
+
+	bool get have {
+		return name != null;
 	}
 
 	changeBucket(Map bucket) {
 		bucketName = bucket['name'];
-		domain = bucket['endpoint'];
+		endpoint = bucket['endpoint'];
+	}
+
+	changeAccount(int id) {
+
 	}
 	
 	//获取使用账号下的所有buckets
@@ -34,7 +58,7 @@ class Oss {
 		Map returns = Map();
 		try {
 			Response response = await dio.get(
-				"https://$domain",
+				"https://$endpoint",
 				options: headerSign()
 			);
 			Map map = xml2map(response.data);
@@ -55,7 +79,7 @@ class Oss {
 		//创建dio对象
 		Dio dio = new Dio();
 		Map returns = Map();
-		String url = "https://$bucketName.$domain?max-keys=$maxKeys";
+		String url = "https://$bucketName.$endpoint?max-keys=$maxKeys";
 		try {
 			if(delimiter != null) {
 				url ="$url&delimiter=$delimiter";
@@ -115,13 +139,13 @@ class Oss {
 		else {
 			args = "/$args/";
 		}
-		String signature = base64.encode(Hmac(sha1, utf8.encode(accesskey)).convert(
+		String signature = base64.encode(Hmac(sha1, utf8.encode(secret)).convert(
 			utf8.encode("GET\n\n\n$gmt\n$args")
 		).bytes);
 		
 		Options options = Options(
 			headers: {
-				'Authorization':"OSS " + accessid + ":" + signature,
+				'Authorization':"OSS " + key + ":" + signature,
 				'Date':gmt,
 			}
 		);
@@ -139,7 +163,7 @@ class Oss {
 			'{"expiration": "2020-01-01T12:00:00.000Z","conditions": [["content-length-range", 0, 1048576000]]}'
 		));
 		
-		String signature = base64.encode(Hmac(sha1, utf8.encode(accesskey)).convert(
+		String signature = base64.encode(Hmac(sha1, utf8.encode(secret)).convert(
 			utf8.encode(policyBase64)).bytes
 		);
 		
@@ -157,7 +181,7 @@ class Oss {
 			'Filename': fileName,
 			'key' : path + fileName,//可以填写文件夹名（对应于oss服务中的文件夹）/
 			'policy': policyBase64,
-			'OSSAccessKeyId': accessid,
+			'OSSAccessKeyId': key,
 			'success_action_status' : '200',//让服务端返回200，不然，默认会返回204
 			'signature': signature,
 			'file': new UploadFileInfo(imageFile, "imageFileName")
@@ -165,7 +189,7 @@ class Oss {
 		
 		Map returns = Map();
 		try {
-			Response response = await dio.post("https://$bucketName.$domain",data: data);
+			Response response = await dio.post("https://$bucketName.$endpoint",data: data);
 			returns['code'] = 0;
 			print(response.headers);
 			print(response.data);
@@ -209,8 +233,7 @@ class Oss {
 	
 	String _signUrl() {
 		//进行utf8 编码
-		List<int> key = utf8.encode(accesskey);
-		print("accesskey $accesskey");
+		List<int> key = utf8.encode(secret);
 
 		String bucketname="picbox";
 		
@@ -224,7 +247,7 @@ class Oss {
 		String sign = base64.encode(signature_pre);
 		sign = Uri.encodeFull(sign);
 		print("sign $sign");
-		String url="https://$domain?OSSAccessKeyId=$accessid&Expires=$expire&Signature=$sign";
+		String url="https://$endpoint?OSSAccessKeyId=$key&Expires=$expire&Signature=$sign";
 		print(url);
 		return url;
 	}

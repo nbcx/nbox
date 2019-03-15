@@ -12,8 +12,8 @@ import 'package:picbox/video_page.dart';
 
 class FileManagePage extends StatefulWidget {
 
-  @override
-  _FileManagePageState createState() => _FileManagePageState();
+    @override
+    _FileManagePageState createState() => _FileManagePageState();
 }
 
 class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAliveClientMixin {
@@ -76,7 +76,6 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
             if(item['Size'] == '0') {
                 continue;
             }
-            print(item);
             File file = File(false,item['Key'],prefix,size: item['Size'],date:item['LastModified']);
             if(file.isImage) {
                 gallery.add(item['Key']);

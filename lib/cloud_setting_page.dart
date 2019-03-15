@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
-import 'session.dart';
+import 'oss.dart';
 import 'sqlite.dart';
 import 'dart:convert' show json;
 import 'event_bus.dart';
+import 'file_manage_page.dart';
 
 class CloudSettingPage extends StatefulWidget {
+
     final int id;
-    //final Map cloud;
-    const CloudSettingPage({this.id,Key key });// : super(key: key)
+    final first;
+
+    const CloudSettingPage({this.first=false,this.id,Key key });// : super(key: key)
     
     @override
     _CloudSettingPageState createState() => _CloudSettingPageState();
@@ -53,7 +56,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
         fd.name = config['name'];
         fd.key = config['key'];
         fd.secret = config['secret'];
-        fd.domain = config['domain'];
+        fd.endpoint = config['endpoint'];
         setState(() {
             isShowForm = true;
         });
@@ -73,19 +76,27 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
         }
         else {
             form.save();
-            Session.putString('_domain', fd.domain);
-            Session.putString('_key', fd.key);
-            Session.putString('_secret', fd.secret);
+            showInSnackBar('提交中...');
             if(fd.id > 0) {
-                db.update('UPDATE cloud SET name = ?, config = ? WHERE id = ?',
-                    [fd.name, fd.toJson(), fd.id]);
+                await db.update('UPDATE cloud SET name = ?,config = ?,bucket=?,endpoint=? WHERE id = ?',
+                    [fd.name, fd.toJson(),fd.bucket,fd.endpoint, fd.id]);
             }
             else {
-                int result = await db.add('INSERT INTO cloud(name, config) VALUES(?,?)',[fd.name, fd.toJson()]);
-                print("result $result");
+                Oss oss = Oss();
+                int id = await db.add('INSERT INTO cloud(name, enable, bucket, endpoint, config) VALUES(?,?,?,?,?)',[
+                    fd.name, oss.have?0:1, fd.bucket, fd.endpoint, fd.toJson()
+                ]);
+                print("CloudSettingPage id $id");
+                if(!oss.have) {
+                    oss.init();
+                    Navigator.pushAndRemoveUntil(context,
+                        MaterialPageRoute(builder: (BuildContext context) { return FileManagePage();}),
+                        (route) => route == null
+                    );
+                    return;
+                }
             }
             bus.emit("changecloud", 1);
-            showInSnackBar('${fd.name}\'s domain is ${fd.domain}');
             Navigator.of(context).pop(true);
         }
     }
@@ -94,9 +105,6 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
         _formWasEdited = true;
         if (value.isEmpty)
             return 'Name is required.';
-        //final RegExp nameExp = RegExp(r'^[A-Za-z ]+$');
-        //if (!nameExp.hasMatch(value))
-        //    return 'Please enter only alphabetical characters.';
         return null;
     }
     
@@ -181,9 +189,21 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                 ),
                 const SizedBox(height: 24.0),
                 TextFormField(
-                    onSaved: (String value) { fd.domain = value; },
+                    onSaved: (String value) { fd.bucket = value; },
                     keyboardType: TextInputType.text,
-                    initialValue:fd.domain,
+                    initialValue:fd.bucket,
+                    decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        labelText: 'Bucket',
+                        suffixStyle: TextStyle(color: Colors.green)
+                    ),
+                    maxLines: 2,
+                ),
+                const SizedBox(height: 24.0),
+                TextFormField(
+                    onSaved: (String value) { fd.endpoint = value; },
+                    keyboardType: TextInputType.text,
+                    initialValue:fd.endpoint,
                     decoration: const InputDecoration(
                         border: UnderlineInputBorder(),
                         labelText: 'Domain',
@@ -201,7 +221,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     ),
                 ),
                 const SizedBox(height: 24.0),
-                Text('* indicates required field',style: Theme.of(context).textTheme.caption ),
+                widget.first? Text('你必须先添加一个OSS账户信息才能进入系统',style: Theme.of(context).textTheme.caption ):null,
                 const SizedBox(height: 24.0),
             ],
         );
@@ -236,14 +256,13 @@ class FormData {
     int id = 0;
     
     String name;
-    String domain;
     String key;
     String secret;
-    
+    String bucket;
+    String endpoint;
+
     String toJson() {
         return json.encode({
-            "name": name,
-            "domain":domain,
             "key":key,
             "secret":secret,
         });

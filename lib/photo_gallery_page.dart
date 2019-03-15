@@ -39,7 +39,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
     }
     
     List<PhotoViewGalleryPageOptions> _photoViewGalleryPageOptions() {
-        String url = "https://${widget.oss.bucketName}.${widget.oss.domain}/";
+        String url = "https://${widget.oss.bucketName}.${widget.oss.endpoint}/";
         return widget.images.map((item) {
             
             return PhotoViewGalleryPageOptions(

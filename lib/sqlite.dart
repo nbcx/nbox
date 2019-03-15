@@ -55,7 +55,7 @@ class Sqlite {
 
     // 检查数据库中, 表是否完整, 在部份android中, 会出现表丢失的情况
     Future checkTableIsRight() async {
-        List<String> expectTables = ['cat', 'widget', 'cloud'];
+        List<String> expectTables = ['cloud'];
 
         List<String> tables = await getTables();
 
