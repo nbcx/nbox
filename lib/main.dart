@@ -32,13 +32,6 @@ class _MyAppState extends State<MyApp> {
       String _colorKey = Session.getString('key_theme_color');
       if (themeColorMap[_colorKey] != null)
           _themeColor = themeColorMap[_colorKey];
-    
-      bus.on("themechange", (arg) {
-          print(arg);
-          setState(() {
-              _themeColor = themeColorMap[arg];
-          });
-      });
   }
   
   // This widget is the root of your application.
@@ -51,8 +44,13 @@ class _MyAppState extends State<MyApp> {
                 accentColor: _themeColor,
                 indicatorColor: Colors.white,
             ),
-            home: FileManagePage(),
+            home: _home(),
         );
+  }
+  
+  Widget _home() {
+      print("home _domain ${Session.getString('_domain')}");
+      return FileManagePage();
   }
   
 }

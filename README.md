@@ -27,7 +27,7 @@
 ![菜单](https://github.com/nbcx/nbox/blob/master/art/c.png)
 
 
-## 主要使用到到一些第三方库
+## 主要使用到的一些第三方库
 
 * [chewie](https://github.com/brianegan/chewie)
 * [dio](https://github.com/flutterchina/dio)
