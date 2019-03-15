@@ -146,7 +146,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     onSaved: (String value) { fd.name = value; },
                     keyboardType: TextInputType.text,
                     decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
+                        border: UnderlineInputBorder(),
                         labelText: 'Name *',
                         suffixStyle: TextStyle(color: Colors.green),
                         hintText: 'What do people call you?',
@@ -159,7 +159,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     keyboardType: TextInputType.text,
                     onSaved: (String value) { fd.key = value; },
                     decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
+                        border: UnderlineInputBorder(),
                         labelText: 'AccessKey ID',
                         suffixStyle: TextStyle(color: Colors.green)
                     ),
@@ -171,7 +171,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     keyboardType: TextInputType.text,
                     onSaved: (String value) { fd.secret = value; },
                     decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
+                        border: UnderlineInputBorder(),
                         labelText: 'Access Key Secret',
                         //prefixText: '\$',
                         //suffixText: 'USD',
@@ -185,7 +185,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     keyboardType: TextInputType.text,
                     initialValue:fd.domain,
                     decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
+                        border: UnderlineInputBorder(),
                         labelText: 'Domain',
                         prefixText: 'https://',
                         suffixStyle: TextStyle(color: Colors.green)

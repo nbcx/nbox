@@ -3,9 +3,12 @@ import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:picbox/setting_app_page.dart';
 import 'package:picbox/cloud_page.dart';
 import 'package:picbox/login_page.dart';
-import 'package:picbox/video_page.dart';
+import 'package:picbox/oss.dart';
 
 class DrawerView extends StatefulWidget {
+	final Oss oss;
+	
+	DrawerView(this.oss);
 	
 	@override
 	_DrawerViewState createState() => _DrawerViewState();
@@ -70,9 +73,6 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 	
 	void _showNotImplementedMessage(String action) {
 		Navigator.pop(context); // Dismiss the drawer.
-		//_scaffoldKey.currentState.showSnackBar(const SnackBar(
-		//	content: Text("The drawer's items don't do anything")
-		//));
 		switch(action) {
 			case 'system':
 				Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingAppPage()));
@@ -81,7 +81,6 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 				Navigator.of(context).push(MaterialPageRoute(builder: (context) => CloudPage()));
 				break;
 			case 'video':
-				Navigator.of(context).push(MaterialPageRoute(builder: (context) => VideoPage()));
 				break;
 			case 'test':
 				Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
@@ -96,13 +95,10 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 			child: Column(
 				children: <Widget>[
 					UserAccountsDrawerHeader(
-						accountName: const Text('Trevor Widget'),
-						accountEmail: const Text('trevor.widget@example.com'),
+						accountName: Text(widget.oss.bucketName),
+						accountEmail: Text(widget.oss.accessid),
 						currentAccountPicture: const CircleAvatar(
-							backgroundImage: AssetImage(
-								'assets/images/ali_connors.png',
-								//package: _kGalleryAssetsPackage,
-							),
+							backgroundImage: AssetImage('assets/images/nbcx.png'),
 						),
 						margin: EdgeInsets.zero,
 						onDetailsPressed: () {

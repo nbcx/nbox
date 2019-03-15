@@ -8,6 +8,7 @@ import 'drawer_view.dart';
 import 'package:path/path.dart' as path;
 import 'photo_gallery_page.dart';
 import 'event_bus.dart';
+import 'package:picbox/video_page.dart';
 
 class FileManagePage extends StatefulWidget {
 
@@ -19,7 +20,6 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
     
     GlobalKey<EasyRefreshState> _easyRefreshKey = new GlobalKey<EasyRefreshState>();
     GlobalKey<RefreshHeaderState> _headerKey = new GlobalKey<RefreshHeaderState>();
-    GlobalKey<RefreshFooterState> _footerKey = new GlobalKey<RefreshFooterState>();
 
     ScrollController controller = ScrollController();
     
@@ -31,11 +31,12 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
     String prefix,marker;
     List<double> position = [];
     List<File> files = [];
+    List<String> gallery = [];
     List<String> prefixS = [];
     
     @override
     bool get wantKeepAlive => true;
-
+    
     @override
     void initState() {
         super.initState();
@@ -60,23 +61,60 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
         _easyRefreshKey.currentState.callRefresh();
     }
 
-    _pull({String prefix,bool clear=true,String delimiter='/',int maxKeys=100,String marker}) async {
+    //仅网盘需求，不需要分页功能
+    _pull({String prefix,bool clear=true,String delimiter='/',int maxKeys=1000}) async {
+        if(clear) {
+            files.clear();
+            gallery.clear();
+            marker = null;
+        }
         Map result = await oss.bucket(prefix:prefix,delimiter:delimiter,maxKeys:maxKeys,marker:marker);
-        if(clear) files.clear();
         for (var item in result['commonPrefixes']) {
             files.add(File(true,item['Prefix'],prefix));
         }
-        print(result);
         for (var item in result['contents']) {
             if(item['Size'] == '0') {
                 continue;
             }
             print(item);
-            files.add(File(false,item['Key'],prefix,size: item['Size'],date:item['LastModified']));
+            File file = File(false,item['Key'],prefix,size: item['Size'],date:item['LastModified']);
+            if(file.isImage) {
+                gallery.add(item['Key']);
+                file.index =  gallery.length - 1;
+            }
+            files.add(file);
         }
-        setState(() {});
+        setState(() {
+            marker = result['marker'];
+        });
     }
-
+    
+    void _fileTap(File file) {
+        //如果是文件夹
+        if (file.isDir) {
+            position.insert(position.length, controller.offset);
+            prefixS.add(file.name);
+            prefix = prefixS.join('/')+"/";
+            print("prefix $prefix");
+            _pull(prefix:prefix,clear: true);
+            jumpToPosition(true);
+            return;
+        }
+        //如果是图片
+        if(file.isImage) {
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => new PhotoGalleryPage(oss,file.index,gallery))
+            );
+            return;
+        }
+        //如果是视频
+        if(file.isVideo) {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => VideoPage(
+                oss,file.name,file.key,
+            )));
+        }
+    }
+    
     @override
     Widget build(BuildContext context) {
         return Scaffold(
@@ -137,7 +175,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
 
                 ],
             ),
-            drawer: DrawerView(),
+            drawer: DrawerView(oss),
             body: Scaffold(
                 appBar: PreferredSize(
                     child: AppBar(
@@ -152,56 +190,40 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                     preferredSize: Size.fromHeight(30)
                 ),
                 backgroundColor: Color(0xfff3f3f3),
-                body: Center(
-                    child: EasyRefresh(
-                        key: _easyRefreshKey,
-                        firstRefresh: true,
-                        behavior: ScrollOverBehavior(),
-                        refreshHeader:ClassicsHeader(
-                            key: _headerKey,
-                            refreshText: '下拉刷新',
-                            refreshReadyText: '释放加载',
-                            refreshingText: "正在刷新...",
-                            refreshedText: "刷新结束",
-                            moreInfo: "更新于 %T",
-                            bgColor: Colors.transparent,
-                            textColor: Colors.black87,
-                            moreInfoColor: Colors.black54,
-                            showMore: true,
-                        ),
-                        refreshFooter: ClassicsFooter(
-                            key: _footerKey,
-                            loadText: "上拉加载",
-                            loadReadyText: "释放加载",
-                            loadingText: "正在加载",
-                            loadedText: "加载结束",
-                            noMoreText: "没有更多数据",
-                            moreInfo: "更新于 %T",
-                            bgColor: Colors.transparent,
-                            textColor: Colors.black87,
-                            moreInfoColor: Colors.black54,
-                            showMore: true,
-                        ),
-                        child:ListView.builder(
-                            controller: controller,
-                            itemCount: files.length != 0 ? files.length : 1,
-                            itemBuilder: (BuildContext context, int index) {
-                                if (files.length != 0) {
-                                    return buildListViewItem(files[index]);
-                                }
-                                else {
-                                    return Padding(
-                                        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 2 - MediaQuery.of(context).padding.top - 56.0),
-                                        child: Center(
-                                            child: Text('The folder is empty'),
-                                        ),
-                                    );
-                                }
-                            },
-                        ),
-                        onRefresh:() => _pull(prefix: prefix),
-                        loadMore:() => _pull(clear:false,prefix: prefix,marker: marker),
+                body: EasyRefresh(
+                    key: _easyRefreshKey,
+                    firstRefresh: true,
+                    behavior: ScrollOverBehavior(),
+                    refreshHeader:ClassicsHeader(
+                        key: _headerKey,
+                        refreshText: '下拉刷新',
+                        refreshReadyText: '释放加载',
+                        refreshingText: "正在刷新...",
+                        refreshedText: "刷新结束",
+                        moreInfo: "更新于 %T",
+                        bgColor: Colors.transparent,
+                        textColor: Colors.black87,
+                        moreInfoColor: Colors.black54,
+                        showMore: true,
                     ),
+                    child:ListView.builder(
+                        controller: controller,
+                        itemCount: files.length != 0 ? files.length : 1,
+                        itemBuilder: (BuildContext context, int index) {
+                            if (files.length != 0) {
+                                return buildListViewItem(files[index]);
+                            }
+                            else {
+                                return Padding(
+                                    padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 2 - MediaQuery.of(context).padding.top - 56.0),
+                                    child: Center(
+                                        child: Text('The folder is empty'),
+                                    ),
+                                );
+                            }
+                        },
+                    ),
+                    onRefresh:() => _pull(prefix: prefix),
                 )
             ),//SearchResultView(),
         );
@@ -232,24 +254,6 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
         );
     }
 
-    void _fileTap(file) {
-        if (file.isDir) {
-            position.insert(position.length, controller.offset);
-            prefixS.add(file.name);
-            prefix = prefixS.join('/')+"/";
-            print("prefix $prefix");
-            _pull(prefix:prefix);
-            jumpToPosition(true);
-            return;
-        }
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => new PhotoGalleryPage([
-                'https://picbox.oss-cn-beijing.aliyuncs.com/0I3145F5-2.jpg',
-                'https://picbox.oss-cn-beijing.aliyuncs.com/1080-1.jpg'
-            ]))
-        );
-    }
-
     void jumpToPosition(bool isEnter) {
         if (isEnter) {
             controller.jumpTo(0.0);
@@ -266,7 +270,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
             if (file.isDir) {
                 return 'assets/images/folder.png';
             }
-            switch (file.ext()) {
+            switch (file.ext) {
                 case '.ppt':
                 case '.pptx':
                     iconImg = 'assets/images/ppt.png';
@@ -313,24 +317,50 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
 }
 
 class File {
+    
     String prefix;
     bool isDir;
     String name;
-    //String ext = 'png';
     String size;
     String date;
+
+    //图片相册索引
+    int index;
+    String ext;
+
+    String key;
+    
+    bool isImage = false;
+    bool isVideo = false;
+    bool isMusic = false;
     
     File(this.isDir,this.name,this.prefix,{this.size,this.date}) {
-        if(prefix == null) {
-            if(isDir) name = name.replaceAll('/', '');
-            return;
+        key = name;
+        //if(prefix == null) {
+        //    if(isDir) name = name.replaceAll('/', '');
+        //    ext = path.extension(name);
+        //    return;
+        //}
+        name = prefix==null?name:name.replaceFirst(prefix, '');
+        if(isDir) {
+            name = name.replaceAll('/', '');
         }
-        name = name.replaceFirst(prefix, '');
-        if(isDir) name = name.replaceAll('/', '');
-    }
-    
-    String ext() {
-        return path.extension(name);
+        else {
+            ext = path.extension(name);
+            switch(ext) {
+                case '.jpg':
+                case '.jpeg':
+                case '.png':
+                    isImage = true;
+                    break;
+                case '.mp4':
+                    isVideo = true;
+                    break;
+                case '.mp3':
+                    isMusic = true;
+                    break;
+            }
+        }
     }
     
     String sizeFmt() {

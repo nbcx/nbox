@@ -2,12 +2,15 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-
+import 'oss.dart';
 
 class VideoPage extends StatefulWidget {
-	VideoPage({this.title = '视频'});
 	
-	final String title;
+	VideoPage(this.oss,this.name,this.src);
+	
+	final Oss oss;
+	final String name;
+	final String src;
 	
 	@override
 	_VideoPageState createState() => _VideoPageState();
@@ -21,8 +24,7 @@ class _VideoPageState extends State<VideoPage> {
 	@override
 	void initState() {
 		super.initState();
-
-		_videoPlayerController1 = VideoPlayerController.network('https://start.7ve.cn/public/butterfly.mp4');
+		_videoPlayerController1 = VideoPlayerController.network("https://${widget.oss.bucketName}.${widget.oss.domain}/${widget.src}");
 		_chewieController = ChewieController(
 			videoPlayerController: _videoPlayerController1,
 			aspectRatio: 3 / 2,
@@ -56,7 +58,7 @@ class _VideoPageState extends State<VideoPage> {
 		return Scaffold(
 			appBar: AppBar(
 				backgroundColor: Colors.black,
-				title: Text(widget.title),
+				title: Text(widget.name),
 			),
 			backgroundColor: Colors.black,
 			body: Chewie(

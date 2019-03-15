@@ -9,8 +9,8 @@ import 'gmt.dart';
 
 class Oss {
 
-	static String accessid  = Session.getString('_key');
-	static String accesskey = Session.getString('_secret');
+	String accessid  = Session.getString('_key');
+	String accesskey = Session.getString('_secret');
 	String domain = Session.getString('_domain');
 	String bucketName = 'picbox';
 	
@@ -51,11 +51,11 @@ class Oss {
 		return returns;
 	}
 
-	Future<Map> bucket({String prefix,String delimiter='/',int maxKeys=100,String marker}) async {
+	Future<Map> bucket({String prefix,String delimiter='/',int maxKeys=1000,String marker}) async {
 		//创建dio对象
 		Dio dio = new Dio();
 		Map returns = Map();
-		String url = "https://$bucketName.$domain?maxKeys=$maxKeys";
+		String url = "https://$bucketName.$domain?max-keys=$maxKeys";
 		try {
 			if(delimiter != null) {
 				url ="$url&delimiter=$delimiter";
@@ -63,6 +63,7 @@ class Oss {
 			if(prefix != null) {
 				url ="$url&prefix=$prefix";
 			}
+			print("oss bucket marker $marker");
 			if(marker != null) {
 				url ="$url&marker=$marker";
 			}
@@ -82,9 +83,10 @@ class Oss {
 			if(returns['commonPrefixes'] is Map) {
 				returns['commonPrefixes'] = [returns['commonPrefixes']];
 			}
-			returns['marker'] =  map['ListBucketResult']['Marker'];
+			returns['more'] =  map['ListBucketResult']['IsTruncated'] == 'true';
+			returns['marker'] =  returns['more']?map['ListBucketResult']['NextMarker']:null;
 			returns['prefix'] =  map['ListBucketResult']['Prefix'];
-			returns['more'] =  map['ListBucketResult']['IsTruncated'];
+			
 			return returns;
 		}
 		on DioError catch(e) {
@@ -163,7 +165,7 @@ class Oss {
 		
 		Map returns = Map();
 		try {
-			Response response = await dio.post("https://$domain",data: data);
+			Response response = await dio.post("https://$bucketName.$domain",data: data);
 			returns['code'] = 0;
 			print(response.headers);
 			print(response.data);

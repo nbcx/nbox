@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cx.nb.picbox">
+    package="cx.nb.nbox">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
@@ -11,7 +11,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="picbox"
+        android:label="网盘盒子"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

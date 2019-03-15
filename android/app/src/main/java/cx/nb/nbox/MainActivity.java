@@ -1,4 +1,4 @@
-package cx.nb.picbox;
+package cx.nb.nbox;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

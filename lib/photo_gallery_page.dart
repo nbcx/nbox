@@ -1,33 +1,86 @@
 import 'package:flutter/material.dart';
-import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
+import 'oss.dart';
 
 class PhotoGalleryPage extends StatefulWidget {
-  final List<String> images;
-  PhotoGalleryPage(this.images);
-
-  @override
-  State<StatefulWidget> createState() => _PhotoGalleryPageState();
+      final Oss oss;
+      final List<String> images;
+      final int index;
+      final PageController pageController;
+      final Widget loadingChild;
+      final Decoration backgroundDecoration = const BoxDecoration(
+          color: Colors.black,
+      );
+      
+      PhotoGalleryPage(this.oss,this.index,this.images,{this.loadingChild}) : pageController = PageController(initialPage: index);
+    
+      @override
+      State<StatefulWidget> createState() => _PhotoGalleryPageState();
 }
 
 class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
-  void _pop() {
-    Navigator.of(context).pop();
-  }
+    
+    int currentIndex;
+    
+    @override
+    void initState() {
+        currentIndex = widget.index;
+        super.initState();
+    }
+    
+    void onPageChanged(int index) {
+        setState(() {
+            currentIndex = index;
+        });
+    }
+    
+    void _pop() {
+      Navigator.of(context).pop();
+    }
+    
+    List<PhotoViewGalleryPageOptions> _photoViewGalleryPageOptions() {
+        String url = "https://${widget.oss.bucketName}.${widget.oss.domain}/";
+        return widget.images.map((item) {
+            
+            return PhotoViewGalleryPageOptions(
+                imageProvider: NetworkImage(url+item),//widget.imageProvider,
+                heroTag: "item",
+            );
+        }).toList();
+    }
 
-  Widget _buildItem(int index, List<String> images) => new GestureDetector(
-        child: new PhotoView(
-            loadingChild: new Center(child: const CircularProgressIndicator()),
-            imageProvider: new NetworkImage(images[index]),
-            heroTag: images[index]),
-        onTap: _pop,
-      );
-
-  @override
-  Widget build(BuildContext context) {
-    final Widget body = new PageView.builder(
-        itemCount: widget.images.length,
-        itemBuilder: (context, index) => _buildItem(index, widget.images));
-
-    return new Container(child: body);
-  }
+    @override
+    Widget build(BuildContext context) {
+        return Scaffold(
+            body: GestureDetector(
+                child:Container(
+                    decoration: widget.backgroundDecoration,
+                    constraints: BoxConstraints.expand(
+                        height: MediaQuery.of(context).size.height,
+                    ),
+                    child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: <Widget>[
+                            PhotoViewGallery(
+                                scrollPhysics: const BouncingScrollPhysics(),
+                                pageOptions: _photoViewGalleryPageOptions(),
+                                loadingChild: widget.loadingChild,
+                                backgroundDecoration: widget.backgroundDecoration,
+                                pageController: widget.pageController,
+                                onPageChanged: onPageChanged,
+                            ),
+                            Container(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Text(
+                                    "${widget.images.length}/${currentIndex + 1}",
+                                    style: const TextStyle(color: Colors.white, fontSize: 17.0, decoration: null),
+                                ),
+                            )
+                        ],
+                    )
+                ),
+                onTap: _pop,
+            ),
+        );
+    }
 }

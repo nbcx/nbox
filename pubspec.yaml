@@ -37,8 +37,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/app.db
-    - assets/images/ali_connors.png
-    - assets/images/ali_connors_sml.png
     - assets/images/folder.png
     - assets/images/image.png
     - assets/images/ppt.png
@@ -52,3 +50,4 @@ flutter:
     - assets/images/psd.png
     - assets/images/unknown.png
     - assets/images/image.jpg
+    - assets/images/nbcx.png
