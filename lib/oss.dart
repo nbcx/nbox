@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'util.dart';
 import 'gmt.dart';
 import 'sqlite.dart';
+import 'cloud.dart';
 
 class Oss {
 
@@ -45,13 +46,14 @@ class Oss {
 	changeBucket(Map bucket) {
 		bucketName = bucket['name'];
 		endpoint = bucket['endpoint'];
-		db.update('UPDATE cloud SET bucket=?,endpoint=? WHERE enable = ?',
-			[bucketName, endpoint,1]
-		);
 	}
 
-	changeAccount(int id) {
-
+	changeAccount(Cloud cloud) {
+		bucketName = cloud.name;
+		endpoint   = cloud.endpoint;
+		key = cloud.key;
+		secret = cloud.secret;
+		bucketName = cloud.bucket;
 	}
 	
 	//获取使用账号下的所有buckets

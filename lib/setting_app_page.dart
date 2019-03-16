@@ -34,8 +34,7 @@ class SettingAppPage extends StatelessWidget {
 									return new InkWell(
 										onTap: () {
 											conf.updateThemeColor(key);
-											//Session.putString('key_theme_color', key);
-											bus.emit("themechange", key);
+											bus.emit("main.themeChange", key);
 										},
 										child: new Container(
 											margin: EdgeInsets.all(5.0),

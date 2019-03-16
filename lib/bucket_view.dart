@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'oss.dart';
 import 'event_bus.dart';
+import 'sqlite.dart';
 
-/// 基本使用页面
 class BucketView extends StatefulWidget {
 
 	final Oss oss;
@@ -71,10 +71,13 @@ class _BucketViewState extends State<BucketView> with AutomaticKeepAliveClientMi
 	}
 
 	void changeBucket(String name,String endpoint) {
-		bus.emit('changeBucket',{
+		bus.emit('file_manage_page.changeBucket',{
 			'name':name,
 			'endpoint':endpoint
 		});
+		db.update('UPDATE cloud SET bucket=?,endpoint=? WHERE enable = ?',
+			[name, endpoint, 1]
+		);
 		Navigator.pop(context);
 	}
 	

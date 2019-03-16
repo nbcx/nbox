@@ -4,6 +4,8 @@ import 'cloud_setting_page.dart';
 import 'sqlite.dart';
 import 'event_bus.dart';
 import 'oss.dart';
+import 'dart:convert' show json;
+import 'cloud.dart';
 
 class CloudPage extends StatefulWidget {
 
@@ -12,15 +14,18 @@ class CloudPage extends StatefulWidget {
 }
 
 class _CloudPageState extends State<CloudPage> {
+
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
     ShapeBorder _shape;
 
-    List<Data> destinations = [];
+    List<Cloud> clouds = [];
     
     @override
     void initState() {
         super.initState();
         _destinations();
-        bus.on("changecloud", (arg) {
+        bus.on("cloud_page.changeCloud", (arg) {
             _destinations();
         });
     }
@@ -28,6 +33,7 @@ class _CloudPageState extends State<CloudPage> {
     @override
     Widget build(BuildContext context) {
         return Scaffold(
+            key: _scaffoldKey,
             appBar: AppBar(
                 title: const Text('云端'),
                 actions: <Widget>[
@@ -45,10 +51,10 @@ class _CloudPageState extends State<CloudPage> {
             ),
             body: ListView(
                 padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
-                children: destinations.map<Widget>((Data destination) {
+                children: clouds.map<Widget>((Cloud destination) {
                     return Container(
                         margin: const EdgeInsets.only(bottom: 8.0),
-                        child: Item(destination: destination, shape: _shape),
+                        child: Item(cloud: destination, shape: _shape),
                     );
                 }).toList(),
             ),
@@ -61,53 +67,21 @@ class _CloudPageState extends State<CloudPage> {
         if(data.length < 1) {
             return null;
         }
-        destinations.clear();
+        clouds.clear();
         for (var item in data) {
-            destinations.add(Data(
-                id:item['id'],
-                assetName: 'places/india_thanjavur_market.png',
-                assetPackage: 'flutter_gallery_assets',
-                title: 'Top 10 Cities to Visit in Tamil Nadu',
-                description: item['name'],
-                city: 'Thanjavur',
-                location: 'Thanjavur, Tamil Nadu',
-            ));
+            clouds.add(Cloud.page(item));
         }
         setState(() {});
     }
 }
 
-class Data {
-    const Data({
-        @required this.id,
-        @required this.assetName,
-        @required this.assetPackage,
-        @required this.title,
-        @required this.description,
-        @required this.city,
-        @required this.location,
-    }) : assert(assetName != null),
-            assert(assetPackage != null),
-            assert(title != null),
-            assert(description != null),
-            assert(city != null),
-            assert(location != null);
-    final int id;
-    final String assetName;
-    final String assetPackage;
-    final String title;
-    final String description;
-    final String city;
-    final String location;
-}
+
 
 class Item extends StatefulWidget {
     
-    const Item({ Key key, @required this.destination, this.shape })
-        : assert(destination != null),
-            super(key: key);
-    
-    final Data destination;
+    const Item({Key key, @required this.cloud, this.shape }) : assert(cloud != null),super(key: key);
+
+    final Cloud cloud;
     final ShapeBorder shape;
     
     @override
@@ -116,11 +90,11 @@ class Item extends StatefulWidget {
 
 class _ItemState extends State<Item> {
     
-    static const double height = 156.0;
-    bool _isSelected = false;
-    
+    static const double height = 150.0;
+
     @override
     Widget build(BuildContext context) {
+
         final ColorScheme colorScheme = Theme.of(context).colorScheme;
         
         return SafeArea(
@@ -128,64 +102,66 @@ class _ItemState extends State<Item> {
             bottom: false,
             child: Padding(
                 padding: const EdgeInsets.all(1.0),
-                child: Column(
-                    children: <Widget>[
-                        SizedBox(
-                            height: height,
-                            child: Card(
-                                clipBehavior: Clip.antiAlias,
-                                shape: widget.shape,
-                                child: InkWell(
-                                    onLongPress: () {
-                                        print('Selectable card state changed');
-                                        setState(() {
-                                            _isSelected = !_isSelected;
-                                        });
-                                    },
-                                    onTap: () {
-                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => CloudSettingPage(
-                                            id:widget.destination.id
-                                        )));
-                                    },
-                                    splashColor: colorScheme.onSurface.withOpacity(0.12),
-                                    highlightColor: Colors.transparent,
-                                    child: Stack(
-                                        children: <Widget>[
-                                            Container(
-                                                color: _isSelected
-                                                    ? colorScheme.primary.withOpacity(0.08)
-                                                    : Colors.transparent,
+                child: SizedBox(
+                    height: height,
+                    child: Card(
+                        clipBehavior: Clip.antiAlias,
+                        shape: widget.shape,
+                        child: InkWell(
+                            onLongPress: ()=>_onLongPress(widget.cloud),
+                            onTap: _onTap,
+                            splashColor: colorScheme.onSurface.withOpacity(0.12),
+                            highlightColor: Colors.transparent,
+                            child: Stack(
+                                children: <Widget>[
+                                    Container(color: widget.cloud.enable ==1 ? colorScheme.primary.withOpacity(0.08) : Colors.transparent ),
+                                    TravelDestinationContent(cloud: widget.cloud),
+                                    Align(
+                                        alignment: Alignment.topRight,
+                                        child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Icon(
+                                                Icons.check_circle,
+                                                color: widget.cloud.enable == 1 ? colorScheme.primary : Colors.transparent,
                                             ),
-                                            TravelDestinationContent(destination: widget.destination),
-                                            Align(
-                                                alignment: Alignment.topRight,
-                                                child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: Icon(
-                                                        Icons.check_circle,
-                                                        color: _isSelected ? colorScheme.primary : Colors.transparent,
-                                                    ),
-                                                ),
-                                            ),
-                                        ],
+                                        ),
                                     ),
-                                ),
+                                ],
                             ),
                         ),
-                    ],
+                    ),
                 ),
             ),
         );
     }
+
+    void _onLongPress(Cloud cloud) {
+        if(cloud.enable == 1) {
+            return;
+        }
+        db.update('UPDATE cloud SET enable = ?  WHERE enable = ?',
+            [0, 1]
+        );
+        db.update('UPDATE cloud SET enable = ?  WHERE id = ?',
+            [1, cloud.id]
+        );
+        bus.emit('cloud_page.changeCloud');
+        bus.emit('file_manage_page.changeAccount',cloud);
+    }
+
+    void _onTap() {
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => CloudSettingPage(
+            id:widget.cloud.id
+        )));
+    }
+
 }
 
 class TravelDestinationContent extends StatelessWidget {
     
-    const TravelDestinationContent({ Key key, @required this.destination })
-        : assert(destination != null),
-            super(key: key);
+    const TravelDestinationContent({Key key, @required this.cloud}) : assert(cloud != null), super(key: key);
     
-    final Data destination;
+    final Cloud cloud;
     
     @override
     Widget build(BuildContext context) {
@@ -195,7 +171,7 @@ class TravelDestinationContent extends StatelessWidget {
         
         final List<Widget> children = <Widget>[
             Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 0.0),
                 child: DefaultTextStyle(
                     softWrap: false,
                     overflow: TextOverflow.ellipsis,
@@ -206,44 +182,31 @@ class TravelDestinationContent extends StatelessWidget {
                             // three line description
                             Padding(
                                 padding: const EdgeInsets.only(bottom: 8.0),
-                                child: Text(
-                                    destination.description,
-                                    style: descriptionStyle.copyWith(color: Colors.black54),
-                                ),
+                                child: Text(cloud.name,textScaleFactor: 1.1),
                             ),
-                            Text(destination.city),
-                            Text(destination.location),
+                            Text(cloud.key,style: descriptionStyle.copyWith(color: Colors.black54)),
+                            Text(cloud.bucket+"."+cloud.endpoint,style: descriptionStyle.copyWith(color: Colors.black54)),
                         ],
                     ),
                 ),
             ),
-        ];
-
-        children.add(
-            // share, explore buttons
             ButtonTheme.bar(
+                padding: const EdgeInsets.symmetric(vertical: 0.0,horizontal: 8.0),
                 child: ButtonBar(
                     alignment: MainAxisAlignment.start,
                     children: <Widget>[
                         FlatButton(
-                            child: Text('Buckets', semanticsLabel: 'Share ${destination.title}'),
-                            textColor: Colors.amber.shade500,
+                            child: Text('删除'),
+                            textColor: Colors.red,
                             onPressed: () {
-                                print('pressed');
-                            },
-                        ),
-                        FlatButton(
-                            child: Text('EXPLORE', semanticsLabel: 'Explore ${destination.title}'),
-                            textColor: Colors.amber.shade500,
-                            onPressed: () {
-                                print('pressed');
+                                print('删除');
                             },
                         ),
                     ],
                 ),
-            ),
-        );
-        
+            )
+        ];
+
         return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: children,

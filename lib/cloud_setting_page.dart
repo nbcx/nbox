@@ -96,7 +96,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     return;
                 }
             }
-            bus.emit("changecloud", 1);
+            bus.emit("cloud_page.changeCloud", 1);
             Navigator.of(context).pop(true);
         }
     }
@@ -221,13 +221,12 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     ),
                     maxLines: 2,
                 ),
-        
                 const SizedBox(height: 24.0),
-                Center(
-                    child: RaisedButton(
-                        child: const Text('提交'),
-                        onPressed: _handleSubmitted,
-                    ),
+                RaisedButton(
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                    child: const Text('提交'),
+                    onPressed: _handleSubmitted,
                 ),
                 const SizedBox(height: 24.0),
                 widget.first? Text('你必须先添加一个OSS账户信息才能进入系统',style: Theme.of(context).textTheme.caption ):const SizedBox(height: 24.0),

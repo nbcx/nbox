@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
         if (themeColorMap[_colorKey] != null) {
             _themeColor = themeColorMap[_colorKey];
         }
-        bus.on("themechange", (arg) {
+        bus.on("main.themeChange", (arg) {
             setState(() {
                 _themeColor = themeColorMap[arg];
             });

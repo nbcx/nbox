@@ -118,7 +118,6 @@ class Sqlite {
         //["updated name", "9876", "some name"]
         //更新一条记录
         int count = await database.rawUpdate(sql,arguments);
-        print("updated: $count");
         return count;
     }
 
