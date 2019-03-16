@@ -47,7 +47,7 @@ class SettingAppPage extends StatelessWidget {
 							)
 						],
 					),
-					new ListTile(
+					ListTile(
 						title: new Row(
 							children: <Widget>[
 								Icon(
@@ -65,7 +65,6 @@ class SettingAppPage extends StatelessWidget {
 							children: <Widget>[
 								Text(
 									'语言',
-									//SpHelper.getLanguageModel() == null? IntlUtil.getString(context, Ids.languageAuto): IntlUtil.getString(context, SpHelper.getLanguageModel().titleId,languageCode: 'zh', countryCode: 'CH'),
 									style: TextStyle(
 										fontSize: 14.0,
 										color: Colours.gray_99,
