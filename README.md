@@ -22,9 +22,9 @@
 
 ## 界面预览
 
-![主界面](/nbcx/nbox/blob/master/art/a.png)
-![bucket切换](/nbcx/nbox/blob/master/art/b.png)
-![菜单](/nbcx/nbox/blob/master/art/c.png)
+![主界面](https://github.com/nbcx/nbox/blob/master/art/a.png)
+![bucket切换](https://github.com/nbcx/nbox/blob/master/art/b.png)
+![菜单](https://github.com/nbcx/nbox/blob/master/art/c.png)
 
 
 ## 主要使用到的一些第三方库
