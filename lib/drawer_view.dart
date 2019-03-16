@@ -6,6 +6,7 @@ import 'package:picbox/login_page.dart';
 import 'package:picbox/oss.dart';
 
 class DrawerView extends StatefulWidget {
+	
 	final Oss oss;
 	
 	DrawerView(this.oss);

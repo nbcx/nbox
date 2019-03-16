@@ -10,9 +10,9 @@ import 'sqlite.dart';
 class Oss {
 
 	String name;
-	String key;//  = Session.getString('_key');
-	String secret;// = Session.getString('_secret');
-	String endpoint;// = Session.getString('_domain');
+	String key;
+	String secret;
+	String endpoint;
 	String bucketName;
 
 	//私有构造函数
@@ -45,6 +45,9 @@ class Oss {
 	changeBucket(Map bucket) {
 		bucketName = bucket['name'];
 		endpoint = bucket['endpoint'];
+		db.update('UPDATE cloud SET bucket=?,endpoint=? WHERE enable = ?',
+			[bucketName, endpoint,1]
+		);
 	}
 
 	changeAccount(int id) {

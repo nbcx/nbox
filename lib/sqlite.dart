@@ -18,8 +18,6 @@ class Sqlite {
 
     //初始化数据库
     Future init() async {
-        print('_initdb');
-
         //Get a location using getDatabasesPath
         String databasesPath = await getDatabasesPath();
         String path = join(databasesPath, 'flutter.db');
@@ -55,7 +53,7 @@ class Sqlite {
 
     // 检查数据库中, 表是否完整, 在部份android中, 会出现表丢失的情况
     Future checkTableIsRight() async {
-        List<String> expectTables = ['cloud'];
+        List<String> expectTables = ['cloud','config'];
 
         List<String> tables = await getTables();
 
@@ -73,7 +71,6 @@ class Sqlite {
             return Future.value([]);
         }
         List tables = await database.rawQuery('SELECT name FROM sqlite_master WHERE type = "table"');
-
         print(tables);
         List<String> targetList = [];
         tables.forEach((item)  {
@@ -98,14 +95,7 @@ class Sqlite {
 
     //获取单条记录
     Future<Map<String, dynamic>> get(String sql,[List<dynamic> arguments]) async {
-        List<Map> data;
-        if(arguments == null) {
-            data = await database.rawQuery(sql);
-        }
-        else {
-            data = await database.rawQuery(sql,arguments);
-        }
-        print("get length ${data.length}");
+        List<Map> data = await database.rawQuery(sql,arguments);
         return data.length > 0? data[0]:null;
     }
 
@@ -132,10 +122,11 @@ class Sqlite {
         return count;
     }
 
-    Future<T> transaction<T>(Future<T> action(Transaction txn), {bool exclusive}) {
-        database.transaction(action,exclusive:exclusive);
+    Future<T> transaction<T>(Future<T> action(Transaction txn), {bool exclusive}) async{
+        await database.transaction(action,exclusive:exclusive);
     }
 
+    /*
     transactions(Function callback) async {
         await database.transaction((txn) async {
             int id1 = await txn.rawInsert(
@@ -147,20 +138,17 @@ class Sqlite {
             print("inserted2: $id2");
         });
     }
+    */
 
     /// Returns the last inserted record id
     Future<int> add(String sql, [List<dynamic> arguments]) async{
         return await database.rawInsert(sql,arguments);
     }
 
-    // INSERT helper
-    Future<int> insert(String table, Map<String, dynamic> values,
-        {String nullColumnHack, ConflictAlgorithm conflictAlgorithm}) {
-    }
-
-    Future<int> del() async {
-        // 删除一条记录
-        int count = await database.rawDelete('DELETE FROM Test WHERE name = ?', ['another name']);
+    // 删除一条记录
+    Future<int> del(String sql, [List<dynamic> arguments]) async {
+        //'DELETE FROM Test WHERE name = ?', ['another name']
+        int count = await database.rawDelete(sql, arguments);
         return count;
     }
 }

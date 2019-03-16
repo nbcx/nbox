@@ -47,16 +47,15 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
     }
     
     Future<void> _update(int id) async{
-        fd = FormData();
         Map cloud = await db.get('SELECT * FROM cloud WHERE id=?',[id]);
         fd.id = cloud['id'];
-        Map config = json.decode(cloud['config']);
-        print(config);
+        fd.name = cloud['name'];
+        fd.endpoint = cloud['endpoint'];
+        fd.bucket = cloud['bucket'];
         _appTitle = "修改云端设置";
-        fd.name = config['name'];
+        Map config = json.decode(cloud['config']);
         fd.key = config['key'];
         fd.secret = config['secret'];
-        fd.endpoint = config['endpoint'];
         setState(() {
             isShowForm = true;
         });
@@ -79,7 +78,8 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
             showInSnackBar('提交中...');
             if(fd.id > 0) {
                 await db.update('UPDATE cloud SET name = ?,config = ?,bucket=?,endpoint=? WHERE id = ?',
-                    [fd.name, fd.toJson(),fd.bucket,fd.endpoint, fd.id]);
+                    [fd.name, fd.toJson(),fd.bucket,fd.endpoint, fd.id]
+                );
             }
             else {
                 Oss oss = Oss();
@@ -100,7 +100,14 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
             Navigator.of(context).pop(true);
         }
     }
-    
+
+    String _validateEmpty(String value) {
+        _formWasEdited = true;
+        if (value.isEmpty)
+            return 'Name is required.';
+        return null;
+    }
+
     String _validateName(String value) {
         _formWasEdited = true;
         if (value.isEmpty)
@@ -166,6 +173,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     initialValue:fd.key,
                     keyboardType: TextInputType.text,
                     onSaved: (String value) { fd.key = value; },
+                    validator: _validateEmpty,
                     decoration: const InputDecoration(
                         border: UnderlineInputBorder(),
                         labelText: 'AccessKey ID',
@@ -178,32 +186,33 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     initialValue:fd.secret,
                     keyboardType: TextInputType.text,
                     onSaved: (String value) { fd.secret = value; },
+                    validator: _validateEmpty,
                     decoration: const InputDecoration(
                         border: UnderlineInputBorder(),
                         labelText: 'Access Key Secret',
-                        //prefixText: '\$',
-                        //suffixText: 'USD',
-                        suffixStyle: TextStyle(color: Colors.green)
-                    ),
-                    maxLines: 3,
-                ),
-                const SizedBox(height: 24.0),
-                TextFormField(
-                    onSaved: (String value) { fd.bucket = value; },
-                    keyboardType: TextInputType.text,
-                    initialValue:fd.bucket,
-                    decoration: const InputDecoration(
-                        border: UnderlineInputBorder(),
-                        labelText: 'Bucket',
                         suffixStyle: TextStyle(color: Colors.green)
                     ),
                     maxLines: 2,
                 ),
                 const SizedBox(height: 24.0),
                 TextFormField(
+                    onSaved: (String value) { fd.bucket = value; },
+                    keyboardType: TextInputType.text,
+                    initialValue:fd.bucket,
+                    validator: _validateEmpty,
+                    decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        labelText: 'Bucket',
+                        suffixStyle: TextStyle(color: Colors.green)
+                    ),
+                    maxLines: 1,
+                ),
+                const SizedBox(height: 24.0),
+                TextFormField(
                     onSaved: (String value) { fd.endpoint = value; },
                     keyboardType: TextInputType.text,
                     initialValue:fd.endpoint,
+                    validator: _validateEmpty,
                     decoration: const InputDecoration(
                         border: UnderlineInputBorder(),
                         labelText: 'Domain',
@@ -221,8 +230,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     ),
                 ),
                 const SizedBox(height: 24.0),
-                widget.first? Text('你必须先添加一个OSS账户信息才能进入系统',style: Theme.of(context).textTheme.caption ):null,
-                const SizedBox(height: 24.0),
+                widget.first? Text('你必须先添加一个OSS账户信息才能进入系统',style: Theme.of(context).textTheme.caption ):const SizedBox(height: 24.0),
             ],
         );
     }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picbox/colors.dart';
-import 'package:picbox/session.dart';
 import 'event_bus.dart';
+import 'config.dart';
 
 class SettingAppPage extends StatelessWidget {
 	
@@ -33,7 +33,8 @@ class SettingAppPage extends StatelessWidget {
 									Color value = themeColorMap[key];
 									return new InkWell(
 										onTap: () {
-											Session.putString('key_theme_color', key);
+											conf.updateThemeColor(key);
+											//Session.putString('key_theme_color', key);
 											bus.emit("themechange", key);
 										},
 										child: new Container(
