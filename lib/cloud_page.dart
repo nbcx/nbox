@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'cloud_setting_page.dart';
 import 'sqlite.dart';
 import 'event_bus.dart';
-import 'oss.dart';
-import 'dart:convert' show json;
 import 'cloud.dart';
 
 class CloudPage extends StatefulWidget {

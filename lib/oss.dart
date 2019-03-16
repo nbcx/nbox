@@ -7,6 +7,7 @@ import 'util.dart';
 import 'gmt.dart';
 import 'sqlite.dart';
 import 'cloud.dart';
+import 'event_bus.dart';
 
 class Oss {
 
@@ -26,6 +27,13 @@ class Oss {
 	factory Oss()=> _singleton;
 	
 	Future<void> init() async {
+		await _init();
+		bus.on("oss.updateAccount", (args) {
+			_init();
+		});
+	}
+
+	_init() async {
 		Map oss = await db.get("select * from cloud where enable=1");
 		if(oss == null) {
 			return;

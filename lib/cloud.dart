@@ -11,6 +11,8 @@ class Cloud {
     String key;
     String secret;
 
+    Cloud();
+
     Cloud.page(Map cloud) {
         id = cloud['id'];
         name = cloud['name'];

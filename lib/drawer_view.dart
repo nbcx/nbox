@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:picbox/setting_app_page.dart';
 import 'package:picbox/cloud_page.dart';
-import 'package:picbox/login_page.dart';
 import 'package:picbox/oss.dart';
+import 'event_bus.dart';
 
 class DrawerView extends StatefulWidget {
 	
@@ -64,6 +64,10 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 			curve: Curves.fastOutSlowIn,
 		);
 		_drawerDetailsPosition = _controller.drive(_drawerDetailsTween);
+		bus.on('drawer_view.updateAccount', (args) {
+			print("oss ${widget.oss.name}");
+			setState(() { });
+		});
 	}
 	
 	@override
@@ -84,7 +88,6 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 			case 'video':
 				break;
 			case 'test':
-				Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
 				break;
 		}
 		

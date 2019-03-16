@@ -122,7 +122,7 @@ class Sqlite {
     }
 
     Future<T> transaction<T>(Future<T> action(Transaction txn), {bool exclusive}) async{
-        await database.transaction(action,exclusive:exclusive);
+        return await database.transaction(action,exclusive:exclusive);
     }
 
     /*

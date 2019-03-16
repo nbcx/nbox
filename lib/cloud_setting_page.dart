@@ -6,6 +6,7 @@ import 'sqlite.dart';
 import 'dart:convert' show json;
 import 'event_bus.dart';
 import 'file_manage_page.dart';
+import 'cloud.dart';
 
 class CloudSettingPage extends StatefulWidget {
 
@@ -22,7 +23,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
     
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-    FormData fd = FormData();
+    Cloud fd = Cloud();
     
     String _appTitle = '添加云端信息';
     bool isShowForm = false;//是否显示表单
@@ -80,13 +81,13 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                 await db.update('UPDATE cloud SET name = ?,config = ?,bucket=?,endpoint=? WHERE id = ?',
                     [fd.name, fd.toJson(),fd.bucket,fd.endpoint, fd.id]
                 );
+                bus.emit("oss.updateAccount",fd.id);
             }
             else {
                 Oss oss = Oss();
-                int id = await db.add('INSERT INTO cloud(name, enable, bucket, endpoint, config) VALUES(?,?,?,?,?)',[
+                await db.add('INSERT INTO cloud(name, enable, bucket, endpoint, config) VALUES(?,?,?,?,?)',[
                     fd.name, oss.have?0:1, fd.bucket, fd.endpoint, fd.toJson()
                 ]);
-                print("CloudSettingPage id $id");
                 if(!oss.have) {
                     oss.init();
                     Navigator.pushAndRemoveUntil(context,
@@ -96,7 +97,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                     return;
                 }
             }
-            bus.emit("cloud_page.changeCloud", 1);
+            bus.emit("cloud_page.changeCloud");
             Navigator.of(context).pop(true);
         }
     }
@@ -257,7 +258,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
         );
     }
 }
-
+/*
 class FormData {
     
     int id = 0;
@@ -275,5 +276,5 @@ class FormData {
         });
     }
 }
-
+*/
 
