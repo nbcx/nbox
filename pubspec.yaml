@@ -14,13 +14,12 @@ dependencies:
     dio: ^1.0.13
     flutter_easyrefresh: ^1.2.5
     #图像浏览
-    transparent_image: ^0.1.0
+    #transparent_image: ^0.1.0
     photo_view: ^0.2.0
     #数据持久化
-    shared_preferences: ^0.4.3
     sqflite: any
     # https://github.com/tekartik/synchronized.dart
-    synchronized: ^1.5.3
+    #synchronized: ^1.5.3
     crypto: ^2.0.6
     image_picker: ^0.5.0+3
     xml2json: ^3.0.3

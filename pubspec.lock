@@ -172,13 +172,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.0.5"
-  shared_preferences:
-    dependency: "direct main"
-    description:
-      name: shared_preferences
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.4.3"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -220,7 +213,7 @@ packages:
     source: hosted
     version: "1.0.4"
   synchronized:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: synchronized
       url: "https://pub.flutter-io.cn"
@@ -240,13 +233,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.2.2"
-  transparent_image:
-    dependency: "direct main"
-    description:
-      name: transparent_image
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.0"
   typed_data:
     dependency: transitive
     description:

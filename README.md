@@ -2,7 +2,7 @@
 
 网盘盒子是基于阿里云的OSS服务提供的API，开发的一个网盘客户端。
 
-主要功能：
+### 主要功能：
 
 - [x] 文件列表显示，包括文件夹切换
 - [x] 添加OSS账户信息
@@ -16,7 +16,7 @@
 - [ ] 文件删除和重命名修改等相关操作
 - [ ] 文件下载
 
-可能不会开发的功能
+### 可能不会开发的功能
 - 支持腾讯COS和七牛云等服务商
 - 账户信息备份转移
 
@@ -31,9 +31,9 @@
 
 * [chewie](https://github.com/brianegan/chewie)
 * [dio](https://github.com/flutterchina/dio)
-* [shared_preferences](https://pub.flutter-io.cn/packages/shared_preferences)
+* [sqflite](https://github.com/tekartik/sqflite.git)
 * [photo_view](https://github.com/renancaraujo/photo_view)
-* [synchronized](https://github.com/tekartik/synchronized.dart)
+* [xml2json](https://github.com/shamblett/xml2json)
 * [flutter_easyrefresh](https://github.com/xuelongqy/flutter_easyrefresh)
 
 更多请看`pubspec.yaml`文件
@@ -53,6 +53,9 @@ $ cd nbox
 $ flutter run
 ```
 
+## 使用
+
+TODO
 
 ## 技术交流
 
