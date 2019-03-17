@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'sqlite.dart';
 
 class Config {
@@ -13,6 +14,8 @@ class Config {
 
     Map k = Map();
 
+    final List<String> supportedLanguages = ['en', 'zh'];
+
     Future<void> init() async {
         List conf = await db.gets("SELECT * FROM config");
 
@@ -20,6 +23,8 @@ class Config {
             k[item['name']] = item['value'];
         }
     }
+
+    Iterable<Locale> supportedLocales() => supportedLanguages.map<Locale>((lang) => new Locale(lang, ''));
 
     Future<int> updateThemeColor(String color) async {
         k['theme_color'] = color;

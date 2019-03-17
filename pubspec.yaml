@@ -9,6 +9,8 @@ environment:
 dependencies:
     flutter:
       sdk: flutter
+    flutter_localizations:
+      sdk: flutter
 
     cupertino_icons: ^0.1.2
     dio: ^1.0.13
@@ -18,8 +20,6 @@ dependencies:
     photo_view: ^0.2.0
     #数据持久化
     sqflite: any
-    # https://github.com/tekartik/synchronized.dart
-    #synchronized: ^1.5.3
     crypto: ^2.0.6
     image_picker: ^0.5.0+3
     xml2json: ^3.0.3
@@ -31,22 +31,9 @@ dev_dependencies:
     flutter_test:
       sdk: flutter
 
-
 flutter:
   uses-material-design: true
   assets:
     - assets/app.db
-    - assets/images/folder.png
-    - assets/images/image.png
-    - assets/images/ppt.png
-    - assets/images/word.png
-    - assets/images/excel.png
-    - assets/images/txt.png
-    - assets/images/file.png
-    - assets/images/zip.png
-    - assets/images/mp3.png
-    - assets/images/video.png
-    - assets/images/psd.png
-    - assets/images/unknown.png
-    - assets/images/image.jpg
-    - assets/images/nbcx.png
+    - assets/images/
+    - locale/

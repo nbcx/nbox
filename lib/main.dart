@@ -6,6 +6,8 @@ import 'cloud_setting_page.dart';
 import 'oss.dart';
 import 'event_bus.dart';
 import 'config.dart';
+import 'translations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
     setCustomErrorPage();
@@ -22,7 +24,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  
+
+    SpecificLocalizationDelegate _localeOverrideDelegate;
+
     Color _themeColor = Colors.black;
 
     @override
@@ -35,6 +39,15 @@ class _MyAppState extends State<MyApp> {
         bus.on("main.themeChange", (arg) {
             setState(() {
                 _themeColor = themeColorMap[arg];
+            });
+        });
+
+        /// 初始化一个新的Localization Delegate，有了它，当用户选择一种新的工作语言时，可以强制初始化一个新的Translations
+        _localeOverrideDelegate = new SpecificLocalizationDelegate(null);
+
+        bus.on("main.langChange", (locale) {
+            setState(() {
+                _localeOverrideDelegate = new SpecificLocalizationDelegate(locale);
             });
         });
     }
@@ -50,6 +63,13 @@ class _MyAppState extends State<MyApp> {
                 indicatorColor: Colors.white,
             ),
 
+            localizationsDelegates: [
+                _localeOverrideDelegate, // 注册一个新的delegate
+                const TranslationsDelegate(),
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate
+            ],
+            supportedLocales: conf.supportedLocales(),
             home: Oss().have?FileManagePage():CloudSettingPage(first: true),
         );
     }

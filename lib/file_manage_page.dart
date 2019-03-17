@@ -9,6 +9,7 @@ import 'photo_gallery_page.dart';
 import 'event_bus.dart';
 import 'package:picbox/video_page.dart';
 import 'file.dart';
+import 'translations.dart';
 
 class FileManagePage extends StatefulWidget {
 
@@ -151,7 +152,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                             jumpToPosition(true);
                         }
                     }),
-                title: Text('网盘盒子'),
+                title: Text(Translations.of(context).text('main_title')),//'网盘盒子'
                 actions: <Widget>[
                     IconButton(
 						tooltip: 'Search',
