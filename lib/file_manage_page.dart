@@ -34,6 +34,8 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
     List<File> files = [];
     List<String> gallery = [];
     List<String> prefixS = [];
+
+    Translations trans;
     
     @override
     bool get wantKeepAlive => true;
@@ -134,6 +136,9 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
     
     @override
     Widget build(BuildContext context) {
+
+        trans = Translations.of(context);
+
         return Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
@@ -152,7 +157,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                             jumpToPosition(true);
                         }
                     }),
-                title: Text(Translations.of(context).text('main_title')),//'网盘盒子'
+                title: Text(trans.text('main_title')),//'网盘盒子'
                 actions: <Widget>[
                     IconButton(
 						tooltip: 'Search',
@@ -200,7 +205,7 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                         centerTitle: false,
                         backgroundColor: Color(0xffeeeeee),
                         title: Text(
-                            "${oss.bucketName}://"+(prefix==null?"":"$prefix"),
+                            "/${oss.bucketName}/"+(prefix==null?"":"$prefix"),
                             style: TextStyle(color: Colors.grey),
                         ),
                     ),
@@ -213,11 +218,11 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                     behavior: ScrollOverBehavior(),
                     refreshHeader:ClassicsHeader(
                         key: _headerKey,
-                        refreshText: '下拉刷新',
-                        refreshReadyText: '释放加载',
-                        refreshingText: "正在刷新...",
-                        refreshedText: "刷新结束",
-                        moreInfo: "更新于 %T",
+                        refreshText: trans.text('pullToRefresh'),
+                        refreshReadyText: trans.text('releaseToRefresh'),
+                        refreshingText: trans.text('refreshing'),
+                        refreshedText: trans.text('refreshFinish'),
+                        moreInfo: trans.text('updateAt'),
                         bgColor: Colors.transparent,
                         textColor: Colors.black87,
                         moreInfoColor: Colors.black54,

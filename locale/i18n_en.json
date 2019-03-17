@@ -1,4 +1,31 @@
 {
-  "app_title": "My Application Title",
-  "main_title": "My Main Title en"
+    "app_title": "My Application Title",
+    "main_title": "DropBox",
+    "refresh": "Refresh",
+    "loadMore": "LoadMore",
+    "pullToRefresh": "Pull to refresh",
+    "releaseToRefresh": "Release to refresh",
+    "refreshing": "Refreshing",
+    "refreshFinish": "Refresh finish",
+    "refreshed": "Refresh finished",
+    "pushToLoad": "Push to load",
+    "releaseToLoad": "Release to load",
+    "loading": "Loading",
+    "loadFinish": "Load finish",
+    "loaded": "Load finished",
+    "noMore": "No more",
+    "updateAt": "Update at %T",
+    "autoLoad": "Auto load",
+
+    "systemSetting":"System setup",
+    "accountManagement":"Disk Account Management",
+    "about":"About",
+    "versionUpdate":"Version update",
+
+    "theme":"Theme",
+    "lang":"Language",
+    "i18n":"Multilingual",
+
+    "zh":"简体中文",
+    "en":"English"
 }

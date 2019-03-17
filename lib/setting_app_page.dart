@@ -2,14 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:picbox/colors.dart';
 import 'event_bus.dart';
 import 'config.dart';
+import 'translations.dart';
+import 'language_page.dart';
 
-class SettingAppPage extends StatelessWidget {
-	
+class SettingAppPage extends StatefulWidget {
+
+	@override
+	State<StatefulWidget> createState() => _SettingAppPageState();
+
+
+
+}
+
+class _SettingAppPageState  extends State<SettingAppPage> {
+
+	Translations trans;
+
 	@override
 	Widget build(BuildContext context) {
+
+		trans = Translations.of(context);
+
 		return new Scaffold(
 			appBar: AppBar(
-				title: Text('设置'),
+				title: Text(trans.text('systemSetting')),
 				centerTitle: true,
 			),
 			body: ListView(
@@ -23,7 +39,7 @@ class SettingAppPage extends StatelessWidget {
 								),
 								Padding(
 									padding: EdgeInsets.only(left: 10.0),
-									child: Text('主题'),
+									child: Text(trans.text('theme')),
 								)
 							],
 						),
@@ -56,7 +72,7 @@ class SettingAppPage extends StatelessWidget {
 								),
 								Padding(
 									padding: EdgeInsets.only(left: 10.0),
-									child: Text('语言'),
+									child: Text(trans.text('lang')),
 								)
 							],
 						),
@@ -74,7 +90,7 @@ class SettingAppPage extends StatelessWidget {
 							],
 						),
 						onTap: () {
-							//NavigatorUtil.pushPage(context, LanguagePage(), pageName: Ids.titleLanguage);
+							Navigator.of(context).push(MaterialPageRoute(builder: (context) => LanguagePage()));
 						},
 					)
 				],

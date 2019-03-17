@@ -4,6 +4,7 @@ import 'package:picbox/setting_app_page.dart';
 import 'package:picbox/cloud_page.dart';
 import 'package:picbox/oss.dart';
 import 'event_bus.dart';
+import 'translations.dart';
 
 class DrawerView extends StatefulWidget {
 	
@@ -17,28 +18,25 @@ class DrawerView extends StatefulWidget {
 
 class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 
-	static const List<Map> _drawerContents = <Map>[
-		{
+	Translations trans;
+
+	static const List<Map> _drawerContents = <Map>[{
 			'icon':Icons.settings,
-			'name':'系统设置',
+			'name':'systemSetting',
 			'action':'system'
-		},
-		{
+		},{
 			'icon':Icons.account_box,
-			'name':'网盘账户管理',
+			'name':'accountManagement',
 			'action':'cloud'
-		},
-		{
+		},{
 			'icon':Icons.turned_in_not,
-			'name':'关于',
+			'name':'about',
 			'action':'video'
-		},
-		{
+		},{
 			'icon':Icons.new_releases,
-			'name':'版本更新',
+			'name':'versionUpdate',
 			'action':'test'
-		}
-	];
+	}];
 	
 	static final Animatable<Offset> _drawerDetailsTween = Tween<Offset>(
 		begin: const Offset(0.0, -1.0),
@@ -95,6 +93,9 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 	
 	@override
 	Widget build(BuildContext context) {
+
+		trans = Translations.of(context);
+
 		return Drawer(
 			child: Column(
 				children: <Widget>[
@@ -135,7 +136,7 @@ class _DrawerViewState extends State<DrawerView> with TickerProviderStateMixin {
 															leading: IconButton(
 																icon: Icon(item['icon']),
 															),//CircleAvatar(child: Text(item['icon'])),
-															title: Text(item['name']),
+															title: Text(trans.text(item['name'])),
 															onTap: ()=>_showNotImplementedMessage(item['action']),
 														);
 													}).toList(),

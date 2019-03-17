@@ -22,6 +22,7 @@ class Config {
         for (var item in conf) {
             k[item['name']] = item['value'];
         }
+        k['lang'] = 'en';
     }
 
     Iterable<Locale> supportedLocales() => supportedLanguages.map<Locale>((lang) => new Locale(lang, ''));
@@ -29,6 +30,11 @@ class Config {
     Future<int> updateThemeColor(String color) async {
         k['theme_color'] = color;
         return db.update('UPDATE config SET value = ? WHERE name = ?',[color,'theme_color']);
+    }
+
+    Future<int> updateLanguage(String lang) async {
+        k['lang'] = lang;
+        return db.update('UPDATE config SET value = ? WHERE name = ?',[lang,'lang']);
     }
 
 }

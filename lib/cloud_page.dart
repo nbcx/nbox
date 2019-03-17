@@ -4,6 +4,7 @@ import 'cloud_setting_page.dart';
 import 'sqlite.dart';
 import 'event_bus.dart';
 import 'cloud.dart';
+import 'translations.dart';
 
 class CloudPage extends StatefulWidget {
 
@@ -33,7 +34,7 @@ class _CloudPageState extends State<CloudPage> {
         return Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
-                title: const Text('云端'),
+                title: Text(Translations.of(context).text('accountManagement')),
                 actions: <Widget>[
                     //MaterialDemoDocumentationButton(CardsDemo.routeName),
                     IconButton(
