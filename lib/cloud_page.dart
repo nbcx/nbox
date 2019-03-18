@@ -5,7 +5,6 @@ import 'sqlite.dart';
 import 'event_bus.dart';
 import 'cloud.dart';
 import 'translations.dart';
-import 'translations.dart';
 
 class CloudPage extends StatefulWidget {
 
@@ -74,8 +73,6 @@ class _CloudPageState extends State<CloudPage> {
         setState(() {});
     }
 }
-
-
 
 class Item extends StatefulWidget {
     
