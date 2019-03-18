@@ -23,10 +23,16 @@
     "about":"关于",
     "versionUpdate":"版本更新",
 
+    "addAccount":"添加网盘账户",
+    "updateAccount":"修改网盘账户",
+
     "theme":"主题",
     "lang":"语言",
     "i18n":"多语言",
 
     "zh":"简体中文",
-    "en":"English"
+    "en":"English",
+
+    "delete":"删除",
+    "submit":"提交"
 }

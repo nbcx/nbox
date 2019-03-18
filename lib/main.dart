@@ -36,15 +36,16 @@ class _MyAppState extends State<MyApp> {
         if (themeColorMap[_colorKey] != null) {
             _themeColor = themeColorMap[_colorKey];
         }
+        _localeOverrideDelegate = new SpecificLocalizationDelegate(Locale(conf.k['lang']));
+        initAsync();
+    }
+    
+    void initAsync() async {
         bus.on("main.themeChange", (arg) {
             setState(() {
                 _themeColor = themeColorMap[arg];
             });
         });
-
-        /// 初始化一个新的Localization Delegate，有了它，当用户选择一种新的工作语言时，可以强制初始化一个新的Translations
-        _localeOverrideDelegate = new SpecificLocalizationDelegate(null);
-
         bus.on("main.langChange", (locale) {
             setState(() {
                 _localeOverrideDelegate = new SpecificLocalizationDelegate(locale);

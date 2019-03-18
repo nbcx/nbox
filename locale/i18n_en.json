@@ -22,10 +22,16 @@
     "about":"About",
     "versionUpdate":"Version update",
 
+    "addAccount":"Add a Disk Account",
+    "updateAccount":"Modification of Disk Account",
+
     "theme":"Theme",
     "lang":"Language",
     "i18n":"Multilingual",
 
     "zh":"简体中文",
-    "en":"English"
+    "en":"English",
+
+    "delete":"Delete",
+    "submit":"Submit"
 }

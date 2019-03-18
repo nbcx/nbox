@@ -7,6 +7,7 @@ import 'dart:convert' show json;
 import 'event_bus.dart';
 import 'file_manage_page.dart';
 import 'cloud.dart';
+import 'translations.dart';
 
 class CloudSettingPage extends StatefulWidget {
 
@@ -22,14 +23,14 @@ class CloudSettingPage extends StatefulWidget {
 class _CloudSettingPageState extends State<CloudSettingPage> {
     
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
+    Translations trans;
+    
     Cloud fd = Cloud();
     
-    String _appTitle = '添加云端信息';
+    String _appTitle = 'addAccount';
     bool isShowForm = false;//是否显示表单
 
-    bool _autovalidate = false;
-    bool _formWasEdited = false;
+    bool _autoValidate = false;
 
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
     
@@ -53,7 +54,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
         fd.name = cloud['name'];
         fd.endpoint = cloud['endpoint'];
         fd.bucket = cloud['bucket'];
-        _appTitle = "修改云端设置";
+        _appTitle = 'updateAccount';
         Map config = json.decode(cloud['config']);
         fd.key = config['key'];
         fd.secret = config['secret'];
@@ -71,7 +72,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
     void _handleSubmitted() async {
         final FormState form = _formKey.currentState;
         if (!form.validate()) {
-            _autovalidate = true; // Start validating on every change.
+            _autoValidate = true; // Start validating on every change.
             showInSnackBar('Please fix the errors in red before submitting.');
         }
         else {
@@ -103,49 +104,17 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
     }
 
     String _validateEmpty(String value) {
-        _formWasEdited = true;
         if (value.isEmpty)
             return 'Name is required.';
         return null;
     }
 
     String _validateName(String value) {
-        _formWasEdited = true;
         if (value.isEmpty)
             return 'Name is required.';
         return null;
     }
     
-    Future<bool> _warnUserAboutInvalidData() async {
-        final FormState form = _formKey.currentState;
-        if (form == null || !_formWasEdited || form.validate())
-            return true;
-        
-        return await showDialog<bool>(
-            context: context,
-            builder: (BuildContext context) {
-                return AlertDialog(
-                    title: const Text('This form has errors'),
-                    content: const Text('Really leave this form?'),
-                    actions: <Widget> [
-                        FlatButton(
-                            child: const Text('YES'),
-                            onPressed: () {
-                                Navigator.of(context).pop(true);
-                            },
-                        ),
-                        FlatButton(
-                            child: const Text('NO'),
-                            onPressed: () {
-                                Navigator.of(context).pop(false);
-                            },
-                        ),
-                    ],
-                );
-            },
-        ) ?? false;
-    }
-
     //表单视图
     Widget _form()  {
         //表单的初始值无法通过setState刷新，所以采用此方式
@@ -165,7 +134,6 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                         border: UnderlineInputBorder(),
                         labelText: 'Name *',
                         suffixStyle: TextStyle(color: Colors.green),
-                        hintText: 'What do people call you?',
                     ),
                     maxLines: 1,
                 ),
@@ -226,7 +194,7 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
                 RaisedButton(
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
-                    child: const Text('提交'),
+                    child: Text(trans.text("submit")),
                     onPressed: _handleSubmitted,
                 ),
                 const SizedBox(height: 24.0),
@@ -237,18 +205,19 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
     
     @override
     Widget build(BuildContext context) {
+        trans = Translations.of(context);
         return Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
-                title: Text(_appTitle),
+                title: Text(trans.text(_appTitle)),
             ),
             body: SafeArea(
                 top: false,
                 bottom: false,
                 child: Form(
                     key: _formKey,
-                    autovalidate: _autovalidate,
-                    onWillPop: _warnUserAboutInvalidData,
+                    autovalidate: _autoValidate,
+                    //onWillPop: _warnUserAboutInvalidData,
                     child: SingleChildScrollView(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: _form(),
@@ -258,23 +227,5 @@ class _CloudSettingPageState extends State<CloudSettingPage> {
         );
     }
 }
-/*
-class FormData {
-    
-    int id = 0;
-    
-    String name;
-    String key;
-    String secret;
-    String bucket;
-    String endpoint;
 
-    String toJson() {
-        return json.encode({
-            "key":key,
-            "secret":secret,
-        });
-    }
-}
-*/
 

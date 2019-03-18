@@ -18,14 +18,13 @@ class Config {
 
     Future<void> init() async {
         List conf = await db.gets("SELECT * FROM config");
-
+        print("conf $conf");
         for (var item in conf) {
             k[item['name']] = item['value'];
         }
-        k['lang'] = 'en';
     }
 
-    Iterable<Locale> supportedLocales() => supportedLanguages.map<Locale>((lang) => new Locale(lang, ''));
+    Iterable<Locale> supportedLocales() => supportedLanguages.map<Locale>((lang) => Locale(lang, ''));
 
     Future<int> updateThemeColor(String color) async {
         k['theme_color'] = color;

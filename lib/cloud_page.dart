@@ -5,6 +5,7 @@ import 'sqlite.dart';
 import 'event_bus.dart';
 import 'cloud.dart';
 import 'translations.dart';
+import 'translations.dart';
 
 class CloudPage extends StatefulWidget {
 
@@ -89,7 +90,7 @@ class Item extends StatefulWidget {
 
 class _ItemState extends State<Item> {
     
-    static const double height = 150.0;
+    static const double height = 145.0;
 
     @override
     Widget build(BuildContext context) {
@@ -190,12 +191,12 @@ class TravelDestinationContent extends StatelessWidget {
                 ),
             ),
             ButtonTheme.bar(
-                padding: const EdgeInsets.symmetric(vertical: 0.0,horizontal: 8.0),
+                padding: const EdgeInsets.symmetric(vertical: 0.0,horizontal: 4.0),
                 child: ButtonBar(
                     alignment: MainAxisAlignment.start,
                     children: <Widget>[
                         FlatButton(
-                            child: Text('删除'),
+                            child: Text(Translations.of(context).text('delete')),
                             textColor: Colors.red,
                             onPressed: () {
                                 print('删除');

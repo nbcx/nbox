@@ -2,7 +2,7 @@ import 'dart:convert' show json;
 
 class Cloud {
 
-    int id;
+    int id = 0;
     String name;
     String bucket;
     String endpoint;
