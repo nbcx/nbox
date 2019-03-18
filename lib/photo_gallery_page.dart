@@ -21,11 +21,13 @@ class PhotoGalleryPage extends StatefulWidget {
 class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
     
     int currentIndex;
+    List<PhotoViewGalleryPageOptions> _photoViewGalleryPageOptions;
     
     @override
     void initState() {
         currentIndex = widget.index;
         super.initState();
+        _photoViewGalleryPageOptions = _photoViewGallery();
     }
     
     void onPageChanged(int index) {
@@ -35,15 +37,14 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
     }
     
     void _pop() {
-      Navigator.of(context).pop();
+        Navigator.of(context).pop();
     }
     
-    List<PhotoViewGalleryPageOptions> _photoViewGalleryPageOptions() {
-        String url = "https://${widget.oss.bucketName}.${widget.oss.endpoint}/";
+    List<PhotoViewGalleryPageOptions> _photoViewGallery() {
+        
         return widget.images.map((item) {
-            
             return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(url+item),//widget.imageProvider,
+                imageProvider: NetworkImage(widget.oss.objectUrl(item)),//widget.imageProvider,
                 heroTag: "item",
             );
         }).toList();
@@ -63,7 +64,7 @@ class _PhotoGalleryPageState extends State<PhotoGalleryPage> {
                         children: <Widget>[
                             PhotoViewGallery(
                                 scrollPhysics: const BouncingScrollPhysics(),
-                                pageOptions: _photoViewGalleryPageOptions(),
+                                pageOptions: _photoViewGalleryPageOptions,
                                 loadingChild: widget.loadingChild,
                                 backgroundDecoration: widget.backgroundDecoration,
                                 pageController: widget.pageController,

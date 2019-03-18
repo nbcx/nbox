@@ -24,7 +24,7 @@ class _VideoPageState extends State<VideoPage> {
 	@override
 	void initState() {
 		super.initState();
-		_videoPlayerController1 = VideoPlayerController.network("https://${widget.oss.bucketName}.${widget.oss.endpoint}/${widget.src}");
+		_videoPlayerController1 = VideoPlayerController.network(widget.oss.objectUrl(widget.src));
 		_chewieController = ChewieController(
 			videoPlayerController: _videoPlayerController1,
 			aspectRatio: 3 / 2,

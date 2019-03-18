@@ -213,56 +213,17 @@ class Oss {
 		}
 	}
 	
-	Future<Map> list() async {
-		//dio的请求配置，这一步非常重要！
-		Options options = new Options();
-		options.responseType = ResponseType.PLAIN;
+	objectUrl(String name) {
+		int expire = DateTime.now().millisecondsSinceEpoch ~/1000 + 3600;
 		
-		//创建dio对象
-		Dio dio = new Dio(options);
-		Map returns = {};
-		try {
-			String url = _signUrl();
-			Response response = await dio.get(url);//oss的服务器地址（包含地址前缀的那一串）
-			print(response.data);
-			Map map = xml2map(response.data);
-			returns['code'] = 0;
-			returns['data'] = map['ListBucketResult']['Contents'];
-			return returns;
-		}
-		on DioError catch(e) {
-			print(e.message);
-			Map map = xml2map(e.response.data);
-			if(map.containsKey('Error')) {
-				returns['code'] = map['Error']['Code'];
-				returns['message'] = map['Error']['Message'];
-			}
-			print(e.response.data);
-			print(e.response.headers);
-			print(e.response.request);
-			return returns;
-		}
-	}
-	
-	String _signUrl() {
-		//进行utf8 编码
-		List<int> key = utf8.encode(secret);
-
-		String bucketname="picbox";
-		
-		
-		int expire = DateTime.now().millisecondsSinceEpoch ~/1000;//(DateTime.now().millisecondsSinceEpoch/1000).ceil() + 10600;
-		print("expire $expire");
-		String StringToSign="GET\n\n\n$expire\n/$bucketname/";//.$file;
+		String stringToSign="GET\n\n\n$expire\n/$bucketName/$name";
 		//进行utf8编码
-		List<int> policyText_utf8 = utf8.encode(StringToSign);//policyText
-		List<int> signature_pre  = Hmac(sha1, key).convert(policyText_utf8).bytes;//policy
-		String sign = base64.encode(signature_pre);
-		sign = Uri.encodeFull(sign);
-		print("sign $sign");
-		String url="https://$endpoint?OSSAccessKeyId=$key&Expires=$expire&Signature=$sign";
-		print(url);
-		return url;
+		String sign = Uri.encodeComponent(
+			base64.encode(
+				Hmac(sha1, utf8.encode(secret)).convert(utf8.encode(stringToSign)).bytes
+			)
+		);
+		return "https://$bucketName.$endpoint/$name?OSSAccessKeyId=$key&Expires=$expire&Signature=$sign";
 	}
 	
 }
