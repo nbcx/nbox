@@ -22,9 +22,9 @@
 
 ## 界面预览
 
-![主界面](https://github.com/nbcx/nbox/blob/master/art/a.png)
-![bucket切换](https://github.com/nbcx/nbox/blob/master/art/b.png)
-![菜单](https://github.com/nbcx/nbox/blob/master/art/c.png)
+![主界面](https://img.nb.cx/art/nbox/a.png)
+![bucket切换](https://img.nb.cx/art/nbox/b.png)
+![菜单](https://img.nb.cx/art/nbox/c.png)
 
 
 ## 主要使用到的一些第三方库
@@ -56,7 +56,7 @@ $ flutter run
 ## 使用
 第一次进入软件，会看到如下界面，上面除Name随意填写，其它数据请对照你的阿里oss账户信息填写。
 
-![First](https://github.com/nbcx/nbox/blob/master/art/d.png)
+![First](https://img.nb.cx/art/nbox/d.png)
 
 
 ## 技术交流
