@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
     @override
     void initState() {
         super.initState();
-        String _colorKey = conf.k['theme_color'];//Session.getString('key_theme_color');
+        String _colorKey = conf.k['theme_color'];
         if (themeColorMap[_colorKey] != null) {
             _themeColor = themeColorMap[_colorKey];
         }
@@ -57,13 +57,12 @@ class _MyAppState extends State<MyApp> {
     @override
     Widget build(BuildContext context) {
         return MaterialApp(
-            title: '图片盒子',
+            title: '网盘盒子',
             theme: ThemeData(//.light().copyWith
                 primaryColor: _themeColor,
                 accentColor: _themeColor,
                 indicatorColor: Colors.white,
             ),
-
             localizationsDelegates: [
                 _localeOverrideDelegate, // 注册一个新的delegate
                 const TranslationsDelegate(),
