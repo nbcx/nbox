@@ -10,6 +10,7 @@ import 'event_bus.dart';
 import 'package:picbox/video_page.dart';
 import 'file.dart';
 import 'translations.dart';
+import 'details_page.dart';
 
 class FileManagePage extends StatefulWidget {
 
@@ -264,15 +265,27 @@ class _FileManagePageState extends State<FileManagePage> with AutomaticKeepAlive
                             ],
                         ),
                         subtitle: file.isDir ? null:Text('${file.dateFmt()}  ${file.sizeFmt()}', style: TextStyle(fontSize: 12.0)),
-                        trailing: file.isDir ? Icon(Icons.chevron_right):null,
+                        trailing: _trailing(file),
                     ),
                     Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 14.0),
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
                         child: Divider(height: 1.0),
                     )
                 ],
             ),
             onTap: () => _fileTap(file),
+        );
+    }
+
+    Widget _trailing(file) {
+        //file.isDir ? Icon(Icons.chevron_right):
+        return GestureDetector(
+            child: Icon(Icons.info_outline),
+            onTap: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => new DetailsPage())
+                );
+            },//点击
         );
     }
 
