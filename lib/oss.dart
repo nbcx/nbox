@@ -146,6 +146,7 @@ class Oss {
 	
 	Options headerSign({String args}) {
 		String gmt = Gmt.format(DateTime.now().millisecondsSinceEpoch+10*1000);//'Tue, 12 Mar 2019 05:11:16 GMT';//DateTime.now().toIso8601String();
+		print("gmt $gmt");
 		if(args == null) {
 			args = '/';
 		}
